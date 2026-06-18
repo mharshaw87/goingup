@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Going Up — Marriage Workbook Companion</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
+:root{
+  --cream:#F7F3EE;--warm-white:#FDFAF6;--gray-dark:#3A3530;--gray-mid:#6B6259;
+  --gray-light:#C4BAB0;--gray-border:#E4DDD6;--rust:#A05C3B;--rust-light:#F2E8E2;
+  --muted-green:#4A6B5A;--muted-green-light:#E4EDE8;--gold:#8B6914;--gold-light:#F5EED8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--cream);color:var(--gray-dark);min-height:100vh}
+
+/* HEADER */
+.site-header{background:var(--gray-dark);padding:26px 32px 22px;text-align:center}
+.site-header .eyebrow{font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--gray-light);margin-bottom:6px}
+.site-header h1{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:400;color:#FDFAF6;line-height:1.1}
+.site-header h1 em{font-style:italic;color:#C9A97A}
+.site-header .subtitle{font-size:13px;color:var(--gray-light);margin-top:5px}
+
+/* PROGRESS */
+.progress-wrap{background:var(--warm-white);border-bottom:1px solid var(--gray-border);padding:13px 32px;display:flex;align-items:center;gap:16px}
+.progress-label{font-size:12px;color:var(--gray-mid);white-space:nowrap}
+.progress-track{flex:1;height:5px;background:var(--gray-border);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--rust),var(--gold));border-radius:99px;transition:width .5s ease}
+.progress-pct{font-size:12px;font-weight:600;color:var(--rust);white-space:nowrap}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:255px 1fr;min-height:calc(100vh - 120px)}
+
+/* SIDEBAR */
+.sidebar{background:var(--warm-white);border-right:1px solid var(--gray-border);padding:18px 0;overflow-y:auto;position:sticky;top:0;max-height:calc(100vh - 120px)}
+.sidebar-label{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-light);padding:0 18px 8px}
+.chapter-btn{display:flex;align-items:center;gap:11px;width:100%;padding:9px 18px;background:none;border:none;cursor:pointer;text-align:left;transition:background .15s;border-left:3px solid transparent}
+.chapter-btn:hover{background:var(--cream)}
+.chapter-btn.active{background:var(--rust-light);border-left-color:var(--rust)}
+.chapter-btn .ch-num{width:26px;height:26px;border-radius:50%;background:var(--gray-border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--gray-mid);flex-shrink:0;transition:all .2s}
+.chapter-btn.active .ch-num{background:var(--rust);color:white}
+.chapter-btn.completed .ch-num{background:var(--muted-green);color:white}
+.ch-info{flex:1}.ch-title{font-size:12px;font-weight:500;color:var(--gray-dark);line-height:1.3}.ch-sub{font-size:10px;color:var(--gray-mid);margin-top:1px}
+.ch-check{font-size:13px;color:var(--muted-green);opacity:0;transition:opacity .2s}
+.chapter-btn.completed .ch-check{opacity:1}
+
+/* CONTENT */
+.content{padding:34px 40px;max-width:780px}
+.chapter-header{margin-bottom:26px;padding-bottom:18px;border-bottom:1px solid var(--gray-border)}
+.chapter-eyebrow{font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--rust);margin-bottom:5px}
+.chapter-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:500;color:var(--gray-dark);line-height:1.2;margin-bottom:8px}
+.chapter-desc{font-size:14px;color:var(--gray-mid);line-height:1.65}
+
+/* WORKBOOK TEXT */
+.wb-text{font-size:13.5px;color:var(--gray-dark);line-height:1.75;margin-bottom:16px}
+.wb-text + .wb-text{margin-top:-8px}
+.wb-note{font-size:12px;color:var(--gray-mid);font-style:italic;line-height:1.6;margin-bottom:14px;padding:10px 14px;background:var(--cream);border-radius:6px;border:1px solid var(--gray-border)}
+.wb-step-title{font-size:13px;font-weight:600;color:var(--gray-dark);margin:16px 0 6px}
+
+/* SECTIONS */
+.section{margin-bottom:26px;border:1px solid var(--gray-border);border-radius:10px;background:var(--warm-white);overflow:hidden}
+.section-header{padding:13px 17px;background:var(--cream);border-bottom:1px solid var(--gray-border)}
+.section-type{font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-mid);margin-bottom:2px}
+.section-title{font-size:14px;font-weight:600;color:var(--gray-dark)}
+.section-body{padding:17px}
+.section-intro{font-size:13px;color:var(--gray-mid);line-height:1.65;margin-bottom:14px}
+
+/* FIELDS */
+.field-group{margin-bottom:15px}.field-group:last-child{margin-bottom:0}
+.field-label{font-size:13px;color:var(--gray-dark);margin-bottom:6px;line-height:1.5}
+.field-label em{font-style:italic;color:var(--rust)}
+textarea{width:100%;min-height:80px;padding:10px 12px;border:1px solid var(--gray-border);border-radius:6px;font-family:'Inter',sans-serif;font-size:13px;color:var(--gray-dark);background:var(--cream);resize:vertical;line-height:1.6;transition:border .15s}
+textarea:focus{outline:none;border-color:var(--rust);background:white}
+textarea::placeholder{color:var(--gray-light)}
+input[type="text"]{width:100%;padding:9px 12px;border:1px solid var(--gray-border);border-radius:6px;font-family:'Inter',sans-serif;font-size:13px;color:var(--gray-dark);background:var(--cream);transition:border .15s}
+input[type="text"]:focus{outline:none;border-color:var(--rust);background:white}
+
+/* CHOICES */
+.choices{display:flex;flex-direction:column;gap:7px}
+.choice-btn{display:flex;align-items:flex-start;gap:10px;padding:10px 13px;border:1px solid var(--gray-border);border-radius:6px;background:var(--cream);cursor:pointer;font-size:13px;color:var(--gray-dark);text-align:left;transition:all .15s;width:100%;line-height:1.45}
+.choice-btn:hover{border-color:var(--rust);background:var(--rust-light)}
+.choice-btn.selected{border-color:var(--rust);background:var(--rust-light);color:var(--rust)}
+.choice-dot{width:16px;height:16px;border:2px solid var(--gray-border);border-radius:50%;flex-shrink:0;transition:all .15s;margin-top:1px}
+.choice-btn.selected .choice-dot{border-color:var(--rust);background:var(--rust);box-shadow:inset 0 0 0 3px white}
+
+/* SLIDERS */
+.slider-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.slider-name{font-size:13px;color:var(--gray-dark);min-width:220px;flex-shrink:0;line-height:1.4}
+input[type="range"]{flex:1;accent-color:var(--rust);cursor:pointer}
+.slider-val{width:24px;text-align:center;font-size:13px;font-weight:600;color:var(--rust)}
+
+/* CHECKLIST */
+.checklist{display:flex;flex-direction:column;gap:7px}
+.check-item{display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:9px 12px;border-radius:6px;border:1px solid var(--gray-border);background:var(--cream);transition:all .15s;line-height:1.5}
+.check-item:hover{border-color:var(--muted-green)}
+.check-item.checked{border-color:var(--muted-green);background:var(--muted-green-light)}
+.check-box{width:18px;height:18px;border:2px solid var(--gray-border);border-radius:4px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s}
+.check-item.checked .check-box{border-color:var(--muted-green);background:var(--muted-green);color:white}
+.check-text{font-size:13px;color:var(--gray-dark);line-height:1.5}
+.check-item.checked .check-text{color:var(--muted-green)}
+
+/* TABLE ASSESSMENT */
+.assess-row{margin-bottom:10px;border:1px solid var(--gray-border);border-radius:8px;overflow:hidden}
+.assess-label{padding:9px 13px;background:var(--cream);font-size:13px;color:var(--gray-dark);border-bottom:1px solid var(--gray-border)}
+.assess-cols{display:flex}
+.assess-col-btn{flex:1;padding:9px 4px;border:none;border-right:1px solid var(--gray-border);background:var(--warm-white);font-size:12px;cursor:pointer;color:var(--gray-mid);transition:all .15s;font-family:'Inter',sans-serif}
+.assess-col-btn:last-child{border-right:none}
+.assess-col-btn:hover{background:var(--rust-light);color:var(--rust)}
+.assess-col-btn.selected{background:var(--rust-light);color:var(--rust);font-weight:600}
+
+/* QUOTE */
+.inline-quote{border-left:3px solid var(--gold);padding:10px 14px;margin:12px 0;background:var(--gold-light);border-radius:0 6px 6px 0;font-size:13px;font-style:italic;color:var(--gold);line-height:1.65}
+.scripture-card{background:var(--gray-dark);border-radius:8px;padding:14px 16px;margin:12px 0}
+.scripture-text{font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;color:#E8DDD0;line-height:1.7}
+.scripture-ref{font-size:11px;color:var(--gray-light);margin-top:6px;letter-spacing:.04em}
+
+/* PRAYER */
+.prayer-box{background:var(--gray-dark);border-radius:10px;padding:20px 22px;margin-top:6px}
+.prayer-label{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-light);margin-bottom:10px;opacity:.7}
+.prayer-text{font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;color:#E8DDD0;line-height:1.8}
+.prayer-note{font-size:12px;color:var(--gray-light);margin-bottom:10px;font-style:normal;opacity:.8}
+
+/* SCORE */
+.score-display{background:var(--gray-dark);border-radius:10px;padding:18px 22px;margin-top:12px;display:flex;align-items:center;gap:20px}
+.score-num{font-family:'Cormorant Garamond',serif;font-size:48px;color:var(--gold-light);font-weight:400;line-height:1}
+.score-range{font-size:13px;font-weight:600;color:var(--warm-white)}
+.score-msg{font-size:12px;color:var(--gray-light);margin-top:4px;line-height:1.5}
+
+/* COMPLETE BAR */
+.chapter-complete-bar{margin-top:26px;display:flex;align-items:center;justify-content:space-between;padding:15px 18px;background:var(--warm-white);border:1px solid var(--gray-border);border-radius:10px}
+.complete-text{font-size:13px;color:var(--gray-mid)}
+.mark-complete-btn{padding:9px 20px;border-radius:6px;border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;transition:all .2s}
+.mark-complete-btn.not-done{background:var(--rust);color:white}
+.mark-complete-btn.not-done:hover{background:#8B4D2E}
+.mark-complete-btn.done{background:var(--muted-green-light);color:var(--muted-green);border:1px solid var(--muted-green)}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.input-label{font-size:12px;color:var(--gray-mid);display:block;margin-bottom:4px}
+
+/* WELCOME */
+.welcome{padding:44px 40px;max-width:700px}
+.welcome-title{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:400;color:var(--gray-dark);margin-bottom:10px;line-height:1.2}
+.welcome-desc{font-size:14px;color:var(--gray-mid);line-height:1.7;margin-bottom:26px}
+.welcome-cards{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:26px}
+.welcome-card{background:var(--warm-white);border:1px solid var(--gray-border);border-radius:10px;padding:15px}
+.wc-icon{font-size:20px;margin-bottom:7px}.wc-title{font-size:13px;font-weight:600;color:var(--gray-dark);margin-bottom:3px}.wc-body{font-size:12px;color:var(--gray-mid);line-height:1.5}
+.start-btn{padding:11px 26px;background:var(--rust);color:white;border:none;border-radius:7px;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:background .2s}
+.start-btn:hover{background:#8B4D2E}
+
+.save-toast{position:fixed;bottom:20px;right:20px;background:var(--gray-dark);color:#FDFAF6;font-size:12px;padding:8px 16px;border-radius:6px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999}
+.save-toast.show{opacity:1}
+.hidden{display:none}
+
+/* DIVIDER */
+.section-divider{border:none;border-top:1px solid var(--gray-border);margin:18px 0}
+
+/* NUMBERED LIST */
+.wb-list{margin:10px 0 14px 0;padding-left:18px}
+.wb-list li{font-size:13px;color:var(--gray-dark);line-height:1.7;margin-bottom:4px}
+.wb-list li strong{color:var(--rust)}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="eyebrow">Dr. Conway & Jada Edwards</div>
+  <h1><em>Going Up</em></h1>
+  <div class="subtitle">Taking Steps to a Healthy Marriage — Couple's Interactive Companion</div>
+</header>
+
+<div class="progress-wrap">
+  <span class="progress-label">Overall Progress</span>
+  <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  <span class="progress-pct" id="prog-pct">0%</span>
+</div>
+
+<div class="layout">
+<nav class="sidebar">
+  <div class="sidebar-label">Chapters</div>
+  <button class="chapter-btn active" onclick="showChapter('welcome')" id="btn-welcome">
+    <div class="ch-num">🏠</div><div class="ch-info"><div class="ch-title">Home</div></div>
+  </button>
+  <button class="chapter-btn" onclick="showChapter('intro')" id="btn-intro">
+    <div class="ch-num">0</div><div class="ch-info"><div class="ch-title">Take the Stairs</div><div class="ch-sub">Introduction</div></div><span class="ch-check">✓</span>
+  </button>
+  <button class="chapter-btn" onclick="showChapter('ch1')" id="btn-ch1">
+    <div class="ch-num">1</div><div class="ch-info"><div class="ch-title">Destination</div><div class="ch-sub">Past, Present & Purpose</div></div><span class="ch-check">✓</span>
+  </button>
+  <button class="chapter-btn" onclick="showChapter('ch2')" id="btn-ch2">
+    <div class="ch-num">2</div><div class="ch-info"><div class="ch-title">Dream</div><div class="ch-sub">It's Not About You</div></div><span class="ch-check">✓</span>
+  </button>
+  <button class="chapter-btn" onclick="showChapter('ch3')" id="btn-ch3">
+    <div class="ch-num">3</div><div class="ch-info"><div class="ch-title">Discouragement</div><div class="ch-sub">Above All Things, Love</div></div><span class="ch-check">✓</span>
+  </button>
+  <button class="chapter-btn" onclick="showChapter('ch4')" id="btn-ch4">
+    <div class="ch-num">4</div><div class="ch-info"><div class="ch-title">Distance</div><div class="ch-sub">Affairs Aren't Just About Sex</div></div><span class="ch-check">✓</span>
+  </button>
+  <button class="chapter-btn" onclick="showChapter('ch5')" id="btn-ch5">
+    <div class="ch-num">5</div><div class="ch-info"><div class="ch-title">Divorce (Emotional)</div><div class="ch-sub">Contract vs. Covenant</div></div><span class="ch-check">✓</span>
+  </button>
+  <button class="chapter-btn" onclick="showChapter('ch6')" id="btn-ch6">
+    <div class="ch-num">6</div><div class="ch-info"><div class="ch-title">Deception</div><div class="ch-sub">Romance vs. Reality: 5 R's</div></div><span class="ch-check">✓</span>
+  </button>
+  <button class="chapter-btn" onclick="showChapter('ch7')" id="btn-ch7">
+    <div class="ch-num">7</div><div class="ch-info"><div class="ch-title">Destruction</div><div class="ch-sub">Mapping Roads & Building Walls</div></div><span class="ch-check">✓</span>
+  </button>
+  <button class="chapter-btn" onclick="showChapter('ch8')" id="btn-ch8">
+    <div class="ch-num">8</div><div class="ch-info"><div class="ch-title">Decision Pt. 1</div><div class="ch-sub">Getting A's in Marriage</div></div><span class="ch-check">✓</span>
+  </button>
+  <button class="chapter-btn" onclick="showChapter('ch9')" id="btn-ch9">
+    <div class="ch-num">9</div><div class="ch-info"><div class="ch-title">Decision Pt. 2</div><div class="ch-sub">Getting A's in Marriage</div></div><span class="ch-check">✓</span>
+  </button>
+  <button class="chapter-btn" onclick="showChapter('ch10')" id="btn-ch10">
+    <div class="ch-num">10</div><div class="ch-info"><div class="ch-title">Destiny</div><div class="ch-sub">Keeping God at the Center</div></div><span class="ch-check">✓</span>
+  </button>
+</nav>
+
+<main id="main-content">
+
+<!-- WELCOME -->
+<div id="page-welcome" class="welcome">
+  <p class="chapter-eyebrow">Your Journey Together</p>
+  <h2 class="welcome-title">Welcome back to <em style="font-family:'Cormorant Garamond',serif">Going Up</em></h2>
+  <p class="welcome-desc">This is your interactive companion for the <em>Going Up: Taking Steps to a Healthy Marriage</em> workbook by Dr. Conway & Jada Edwards. The journey toward a stronger marriage does not happen overnight. Like the image of taking the stairs instead of the elevator, every step matters — and every step brings you closer to the thriving, God-centered marriage He desires for you.<br><br>Use this tool to revisit each chapter, record your reflections, track your commitments, and see how far you've come — month after month.</p>
+  <div class="welcome-cards">
+    <div class="welcome-card"><div class="wc-icon">📖</div><div class="wc-title">Full workbook text</div><div class="wc-body">Every exercise includes the original framing and instructions from the book, so you're always in context.</div></div>
+    <div class="welcome-card"><div class="wc-icon">💾</div><div class="wc-title">Auto-saved</div><div class="wc-body">Everything you type saves automatically in your browser. Return anytime to pick up where you left off.</div></div>
+    <div class="welcome-card"><div class="wc-icon">🔄</div><div class="wc-title">Revisit monthly</div><div class="wc-body">Come back and update your answers over time. Watch how your marriage grows step by step.</div></div>
+    <div class="welcome-card"><div class="wc-icon">🙏</div><div class="wc-title">Prayers included</div><div class="wc-body">Each chapter ends with the prayer from the book to read aloud together as you close.</div></div>
+  </div>
+  <button class="start-btn" onclick="showChapter('intro')">Start with the Introduction →</button>
+</div>
+
+<!-- INTRODUCTION -->
+<div id="page-intro" class="content hidden">
+  <div class="chapter-header">
+    <div class="chapter-eyebrow">Introduction</div>
+    <h2 class="chapter-title">Take the Stairs, Not the Elevator</h2>
+    <p class="chapter-desc">This companion guide is designed to help you engage more deeply with the masterclass and the book. This workbook is not meant to be read passively — it is a tool to help you reflect, pray, and take intentional action with your spouse.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Self-Assessment Activity</div><div class="section-title">Stairs or Elevator?</div></div>
+    <div class="section-body">
+      <p class="section-intro">Think about a time in your life (not just marriage) when the more challenging path turned out to be the most rewarding.</p>
+      <p class="section-intro">The authors remind us: <em>"Maybe you're stuck on one step… maybe you're heading down the stairs instead of up… maybe you're still looking for the stairs."</em></p>
+      <p class="wb-text" style="font-size:13px;font-weight:500;color:var(--gray-dark);margin-bottom:10px">Place a check next to the option that best describes where you feel your marriage is today:</p>
+      <div class="choices" id="stairs-assessment"></div>
+      <hr class="section-divider">
+      <p class="wb-step-title">Couple Conversation</p>
+      <p class="section-intro">Each share why you circled that answer. Then discuss:</p>
+      <div class="field-group">
+        <div class="field-label">What does "the next step" look like for each of you?</div>
+        <textarea id="intro-nextstep" placeholder="Share what the next step looks like from each of your perspectives…" oninput="save()"></textarea>
+      </div>
+      <div class="field-group">
+        <div class="field-label">How can you encourage each other in this season?</div>
+        <textarea id="intro-encourage" placeholder="Specific, practical ways to encourage one another…" oninput="save()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Exercise</div><div class="section-title">The Mundane Trap — Routine vs. Relationship</div></div>
+    <div class="section-body">
+      <p class="section-intro">Has your marriage become mundane? Are you more like roommates than soulmates?</p>
+      <div class="field-group">
+        <div class="field-label">List the top 3 daily/weekly routines you and your spouse do well as teammates:</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <input type="text" id="routine1" placeholder="1." oninput="save()">
+          <input type="text" id="routine2" placeholder="2." oninput="save()">
+          <input type="text" id="routine3" placeholder="3." oninput="save()">
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">List 3 areas where you'd like to shift from roommates back to soulmates. If you are already living as soulmates, discuss how to become intentional about spending quality time together:</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <input type="text" id="soulmate1" placeholder="1." oninput="save()">
+          <input type="text" id="soulmate2" placeholder="2." oninput="save()">
+          <input type="text" id="soulmate3" placeholder="3." oninput="save()">
+        </div>
+      </div>
+      <hr class="section-divider">
+      <p class="wb-step-title">Action Step</p>
+      <p class="section-intro">Choose one item from the second list and plan a specific change this week (e.g., "no phones at dinner," "pray together before bed," "Saturday morning walk"). Write your commitment below:</p>
+      <div class="field-group">
+        <textarea id="intro-action" placeholder="Our commitment this week…" oninput="save()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Exercise</div><div class="section-title">The Silence or the Screens — Screen Swap</div></div>
+    <div class="section-body">
+      <p class="section-intro">How often do you sit on opposite sides of the house, looking at a digital screen in your hand?</p>
+      <p class="section-intro">For the next 3 evenings, commit to one 20-minute block where both of you put away screens and talk face-to-face.</p>
+      <p class="wb-step-title">Couple Conversation — use these questions during your screen-free time:</p>
+      <ul class="wb-list">
+        <li>What's one thing God has been teaching you lately?</li>
+        <li>What's one thing you appreciate about your spouse this week?</li>
+        <li>What's one way we can better support each other in this season?</li>
+      </ul>
+      <div class="field-group">
+        <div class="field-label">Write down what you discovered:</div>
+        <textarea id="intro-screens" placeholder="What came up when you put the screens down? What surprised you?" oninput="save()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="chapter-complete-bar">
+    <div class="complete-text">Mark complete when you've worked through this section together</div>
+    <button class="mark-complete-btn not-done" id="complete-intro" onclick="toggleComplete('intro')">Mark Complete</button>
+  </div>
+</div>
+
+<!-- CHAPTER 1 -->
+<div id="page-ch1" class="content hidden">
+  <div class="chapter-header">
+    <div class="chapter-eyebrow">Chapter 1</div>
+    <h2 class="chapter-title">Destination: Past, Present, and Purpose</h2>
+    <p class="chapter-desc">We often have specific intentions to reach our goals, but the heart behind the intention may not always align. The questions below help you dig deeper and uncover your heart — and how it aligns with your life together.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Step 1</div><div class="section-title">Family-of-Origin Map</div></div>
+    <div class="section-body">
+      <p class="section-intro">The families we grew up in shape more than we realize — our expectations, our conflict styles, how we handle money, and what we believe love looks like. Take time to map where each of you came from.</p>
+      <div class="field-group">
+        <div class="field-label">Birth Order:</div>
+        <div class="two-col">
+          <div><label class="input-label">Spouse A</label><input type="text" id="ch1-a-birth" placeholder="e.g. Oldest of 3" oninput="save()"></div>
+          <div><label class="input-label">Spouse B</label><input type="text" id="ch1-b-birth" placeholder="e.g. Middle child" oninput="save()"></div>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Home Style Growing Up (select one each):</div>
+        <div class="two-col">
+          <div><label class="input-label" style="margin-bottom:6px">Spouse A</label><div class="choices" id="ch1-a-homestyle"></div></div>
+          <div><label class="input-label" style="margin-bottom:6px">Spouse B</label><div class="choices" id="ch1-b-homestyle"></div></div>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Household Roles You Observed:</div>
+        <div class="two-col">
+          <div><label class="input-label">Cooking — Spouse A saw:</label><input type="text" id="ch1-cook-a" oninput="save()"></div>
+          <div><label class="input-label">Cooking — Spouse B saw:</label><input type="text" id="ch1-cook-b" oninput="save()"></div>
+          <div><label class="input-label">Arriving Home Routine — Spouse A:</label><input type="text" id="ch1-arrive-a" placeholder='e.g. "straight to the chair"' oninput="save()"></div>
+          <div><label class="input-label">Arriving Home Routine — Spouse B:</label><input type="text" id="ch1-arrive-b" oninput="save()"></div>
+          <div><label class="input-label">Serving/Care Patterns — Spouse A:</label><input type="text" id="ch1-serve-a" placeholder="Who served whom, how?" oninput="save()"></div>
+          <div><label class="input-label">Serving/Care Patterns — Spouse B:</label><input type="text" id="ch1-serve-b" oninput="save()"></div>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Money Messages You Absorbed growing up:</div>
+        <textarea id="ch1-money" placeholder="What did money represent in each of your homes? Was it talked about openly? Was there scarcity or abundance?" oninput="save()"></textarea>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Spiritual Rhythms You Saw Modeled:</div>
+        <textarea id="ch1-spiritual" placeholder="Faith practices, prayer habits, church involvement — what did each of you grow up seeing modeled?" oninput="save()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Assessment</div><div class="section-title">Conflict Style You Inherited (1 = Never, 5 = Often)</div></div>
+    <div class="section-body">
+      <p class="section-intro">How we handle conflict is often something we absorbed from watching the adults in our homes — not something we consciously chose. Rate how often each of these styles shows up for you:</p>
+      <div id="ch1-conflict-sliders"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Couple Conversation</div><div class="section-title">Gifts & Wounds From Our Past</div></div>
+    <div class="section-body">
+      <p class="section-intro">Our past shapes us — for better and for worse. Sharing both the gifts and the wounds helps your spouse understand you more deeply, and creates space for compassion instead of confusion.</p>
+      <div class="two-col">
+        <div class="field-group">
+          <div class="field-label">Two Gifts From My Past:</div>
+          <input type="text" id="ch1-gift1" placeholder="1." oninput="save()" style="margin-bottom:8px">
+          <input type="text" id="ch1-gift2" placeholder="2." oninput="save()">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Two Wounds / Weak Spots From My Past:</div>
+          <input type="text" id="ch1-wound1" placeholder="1." oninput="save()" style="margin-bottom:8px">
+          <input type="text" id="ch1-wound2" placeholder="2." oninput="save()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chapter-complete-bar">
+    <div class="complete-text">Mark complete when you've worked through this chapter together</div>
+    <button class="mark-complete-btn not-done" id="complete-ch1" onclick="toggleComplete('ch1')">Mark Complete</button>
+  </div>
+</div>
+
+<!-- CHAPTER 2 -->
+<div id="page-ch2" class="content hidden">
+  <div class="chapter-header">
+    <div class="chapter-eyebrow">Chapter 2</div>
+    <h2 class="chapter-title">Dream: It's Not About You</h2>
+    <p class="chapter-desc">Marriage often begins with a dream — a picture of what life together would look like. But that dream is often shaped more by our families than by God. True marriage is meant to illustrate something greater than us.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Reflection & Fill-in-the-Blanks</div><div class="section-title">Unpacking Our Expectations</div></div>
+    <div class="section-body">
+      <div class="field-group">
+        <div class="field-label">One expectation I carried into marriage from my family was: <em>"I expected my spouse would _________, because my mom/dad always _________."</em></div>
+        <textarea id="ch2-expect" placeholder="Be honest — this is a safe space to share the expectation you brought in…" oninput="save()"></textarea>
+      </div>
+      <div class="field-group">
+        <div class="field-label">The truth is: <em>"I didn't marry my ________ or my ________. I married _________, who is uniquely created by God."</em></div>
+        <textarea id="ch2-truth" placeholder="Fill in the blanks with who you actually married — and what makes them uniquely them…" oninput="save()" style="min-height:60px"></textarea>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Marriage is meant to illustrate: <em>(hint: the Trinity)</em></div>
+        <input type="text" id="ch2-illustrate" placeholder="Unity, selfless love, oneness…" oninput="save()">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Instead of keeping score in marriage, I am called to:</div>
+        <input type="text" id="ch2-score" placeholder="Out-serve, forgive freely, choose love daily…" oninput="save()">
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Self-Assessment</div><div class="section-title">Serving vs. Self-Focused</div></div>
+    <div class="section-body">
+      <p class="section-intro">Circle the response that best reflects where you are today. Be honest — the goal isn't the "right" answer, it's the real one.</p>
+      <div class="field-group">
+        <div class="field-label">1. When conflict arises, I…</div>
+        <div class="choices" id="ch2-conflict"></div>
+      </div>
+      <div class="field-group" style="margin-top:14px">
+        <div class="field-label">2. My mindset toward my spouse is usually…</div>
+        <div class="choices" id="ch2-mindset"></div>
+      </div>
+      <div class="field-group" style="margin-top:14px">
+        <div class="field-label">3. When I'm unhappy in marriage, I tend to…</div>
+        <div class="choices" id="ch2-unhappy"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">"Step Up" Challenge</div><div class="section-title">Out-Serving Your Spouse This Week</div></div>
+    <div class="section-body">
+      <p class="section-intro">Choose one way to intentionally out-serve your spouse each day this week. Keep a simple journal of what you did and how it impacted your relationship.</p>
+      <div class="field-group">
+        <div class="field-label">What I did each day — and what I noticed:</div>
+        <textarea id="ch2-stepup" placeholder="Day by day: what did you do? How did your spouse respond? What shifted in you?" oninput="save()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="chapter-complete-bar">
+    <div class="complete-text">Mark complete when you've worked through this chapter together</div>
+    <button class="mark-complete-btn not-done" id="complete-ch2" onclick="toggleComplete('ch2')">Mark Complete</button>
+  </div>
+</div>
+
+<!-- CHAPTER 3 -->
+<div id="page-ch3" class="content hidden">
+  <div class="chapter-header">
+    <div class="chapter-eyebrow">Chapter 3</div>
+    <h2 class="chapter-title">Discouragement: Above All Things, Love</h2>
+    <p class="chapter-desc">Marriage often begins with a dream. Over time, unmet expectations can turn into discouragement. But Paul describes love as a progression: Love bears, believes, hopes, and endures — and in healthy relationships, your feelings follow your actions.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Fill in the Blank</div><div class="section-title">Where Are We?</div></div>
+    <div class="section-body">
+      <div class="field-group">
+        <div class="field-label">1. One area in our marriage that sometimes leaves me feeling discouraged is:</div>
+        <textarea id="ch3-discouraged" placeholder="Be honest — this is a safe space. Name the area, not the blame." oninput="save()" style="min-height:60px"></textarea>
+      </div>
+      <div class="field-group">
+        <div class="field-label">2. When I feel discouraged, I usually respond by:</div>
+        <input type="text" id="ch3-respond" placeholder="Shutting down, talking it out, distracting myself, praying…" oninput="save()">
+      </div>
+      <div class="field-group">
+        <div class="field-label">3. My spouse may feel discouraged when:</div>
+        <input type="text" id="ch3-spouse-disc" placeholder="What situations or patterns tend to discourage them?" oninput="save()">
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Self-Assessment Checkboxes</div><div class="section-title">How I Show Up in Conflict</div></div>
+    <div class="section-body">
+      <p class="section-intro">Check any that honestly describe you. This isn't about shame — it's about self-awareness so you can grow.</p>
+      <div class="checklist" id="ch3-conflict-style"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Exercise</div><div class="section-title">Reactive, Proactive, or Radioactive?</div></div>
+    <div class="section-body">
+      <p class="section-intro">Pastor Jimmy Evans teaches that relationships can be Reactive, Proactive, or Radioactive. Mark where you are today:</p>
+      <div class="choices" id="ch3-relationship-type"></div>
+      <hr class="section-divider">
+      <div class="field-group">
+        <div class="field-label">What's one step we can take this week to move closer to being proactive?</div>
+        <textarea id="ch3-proactive" placeholder="One specific, practical step — not a general intention…" oninput="save()"></textarea>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Do we need to invite a mentor, pastor, or counselor into our journey?</div>
+        <textarea id="ch3-mentor" placeholder="Who might that be? What would that look like? What's holding us back if anything?" oninput="save()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Fill in the Blank Reflection</div><div class="section-title">Love Bears · Believes · Hopes · Endures</div></div>
+    <div class="section-body">
+      <p class="section-intro">Paul describes love as a progression. Work through each dimension — write your personal commitment for each one.</p>
+      <div class="field-group">
+        <div class="field-label"><em>Love bears all things</em> → I will protect my spouse by:</div>
+        <textarea id="ch3-bears" placeholder="" oninput="save()" style="min-height:60px"></textarea>
+      </div>
+      <div class="field-group">
+        <div class="field-label"><em>Love believes all things</em> → I will choose to trust my spouse when:</div>
+        <textarea id="ch3-believes" placeholder="" oninput="save()" style="min-height:60px"></textarea>
+      </div>
+      <div class="field-group">
+        <div class="field-label"><em>Love hopes all things</em> → I will show optimism in our future by:</div>
+        <textarea id="ch3-hopes" placeholder="" oninput="save()" style="min-height:60px"></textarea>
+      </div>
+      <div class="field-group">
+        <div class="field-label"><em>Love endures all things</em> → Even when it's hard, I will commit to:</div>
+        <textarea id="ch3-endures" placeholder="" oninput="save()" style="min-height:60px"></textarea>
+      </div>
+      <hr class="section-divider">
+      <p class="wb-step-title">Discussion Prompt</p>
+      <p class="section-intro">In healthy relationships, your feelings follow your actions. What actions can you take this week that will shape healthier feelings?</p>
+      <div class="field-group">
+        <textarea id="ch3-feelings" placeholder="Specific actions — not feelings you hope to have, but steps you will take…" oninput="save()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Journaling Prompt</div><div class="section-title">For Each Spouse</div></div>
+    <div class="section-body">
+      <p class="section-intro">Conway and Jada spent years learning how to complement each other rather than compete. Their story reminds us: marriage is a covenant, not a competition. Write your answers individually, then share.</p>
+      <div class="field-group">
+        <div class="field-label">What dream did I bring into marriage that caused tension?</div>
+        <textarea id="ch3-j1" oninput="save()"></textarea>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Where do I still wrestle with unrealistic expectations?</div>
+        <textarea id="ch3-j2" oninput="save()"></textarea>
+      </div>
+      <div class="field-group">
+        <div class="field-label">How can I embrace my spouse's strengths instead of resisting them?</div>
+        <textarea id="ch3-j3" oninput="save()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Marriage Game Plan</div><div class="section-title">Our Agreement — Revisit This Regularly</div></div>
+    <div class="section-body">
+      <p class="section-intro">Use this space to create your Marriage Game Plan. Consider taping it somewhere visible (mirror, fridge, journal) as a reminder.</p>
+      <div class="field-group"><div class="field-label">Before issues arise, we will…</div><textarea id="ch3-before" oninput="save()" style="min-height:60px"></textarea></div>
+      <div class="field-group"><div class="field-label">When conflict happens, we will…</div><textarea id="ch3-conflict" oninput="save()" style="min-height:60px"></textarea></div>
+      <div class="field-group"><div class="field-label">If communication breaks down, we will…</div><textarea id="ch3-breakdown" oninput="save()" style="min-height:60px"></textarea></div>
+      <div class="field-group"><div class="field-label">We commit to bearing, believing, hoping, and enduring together by…</div><textarea id="ch3-commit" oninput="save()" style="min-height:60px"></textarea></div>
+    </div>
+  </div>
+
+  <div class="prayer-box">
+    <div class="prayer-label">Chapter 3 Prayer — Read aloud together</div>
+    <div class="prayer-note">Spouses may take turns praying aloud or repeat together.</div>
+    <div class="prayer-text">Heavenly Father, thank You for the gift of marriage. Help us to love one another with the kind of love that bears, believes, hopes, and endures. Protect our hearts from selfishness, pride, and discouragement. Teach us to be proactive in building unity, and give us courage to seek help when needed. May our covenant reflect Christ's love for His church. We surrender our expectations and invite You to shape our marriage into something greater than we could imagine. In Jesus' name, Amen.</div>
+  </div>
+
+  <div class="chapter-complete-bar" style="margin-top:20px">
+    <div class="complete-text">Mark complete when you've worked through this chapter together</div>
+    <button class="mark-complete-btn not-done" id="complete-ch3" onclick="toggleComplete('ch3')">Mark Complete</button>
+  </div>
+</div>
+
+<!-- CHAPTER 4 -->
+<div id="page-ch4" class="content hidden">
+  <div class="chapter-header">
+    <div class="chapter-eyebrow">Chapter 4</div>
+    <h2 class="chapter-title">Distance: Affairs Aren't Just About Sex</h2>
+    <p class="chapter-desc">Emotional boundaries are essential in protecting your heart, honoring your spouse, and strengthening your marriage. This chapter will help each of you recognize how you give and receive emotionally, where your boundaries may be too loose or too rigid, and where they can be strengthened through Christ-centered growth.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Assessment Instructions</div><div class="section-title">How to Use This Chapter</div></div>
+    <div class="section-body">
+      <div class="wb-step-title">Step 1 — Complete the Assessment Individually</div>
+      <p class="section-intro">Each spouse should complete the assessment on their own, without discussing answers first. Find a quiet space where you can reflect honestly before God. Do not answer based on what you think your spouse wants to hear — answer based on your true thoughts, feelings, and habits.</p>
+      <div class="wb-note">Important: If you are not completely honest, the results will not serve you. The purpose is not to get the "perfect score," but to reveal areas where God may want to bring healing, correction, or encouragement in your relationship.</div>
+      <div class="wb-step-title">Step 2 — Pray Before You Begin</div>
+      <p class="section-intro">Pray individually, asking God to reveal truth in your heart, guard against defensiveness or pride, and help you see clearly where boundaries need to be established or repaired.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Self-Check</div><div class="section-title">Emotional Boundaries Assessment — Circle YES or NO</div></div>
+    <div class="section-body">
+      <p class="section-intro">Answer honestly. If you circled YES to more than one, it's a warning sign of emotional distance.</p>
+      <div class="checklist" id="ch4-yesno"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Key Idea</div><div class="section-title">Recognizing the Danger of Distance</div></div>
+    <div class="section-body">
+      <p class="section-intro">Distance in marriage opens the door to emotional or physical affairs. Affairs are not always sexual — they often begin with misplaced emotional intimacy.</p>
+      <div class="field-group">
+        <div class="field-label">Fill in the Blank: When distance is built up between a husband and wife, it means one person has decided that some things will never ___________.</div>
+        <input type="text" id="ch4-blank1" placeholder="(fill in from your reading/video)" oninput="save()">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Love bears and ___________ all things.</div>
+        <input type="text" id="ch4-blank2" oninput="save()">
+      </div>
+      <div class="field-group">
+        <div class="field-label">A "side chick" or "side guy" is anyone who gives a cheap version of the ___________ support you should receive at home.</div>
+        <input type="text" id="ch4-blank3" oninput="save()">
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Step 4 — Share & Discuss Together</div><div class="section-title">Conversation Starters</div></div>
+    <div class="section-body">
+      <p class="section-intro">After both spouses have completed the assessment, set aside intentional time to talk through your results. Share areas of strength, as well as areas where boundaries may be weak. Listen without interrupting or correcting. Let your spouse finish before responding. Acknowledge what is true, and resist the urge to defend or minimize.</p>
+      <p class="section-intro">Use these prompts to discuss openly:</p>
+      <ul class="wb-list">
+        <li>"One way I've felt distant from you lately is…"</li>
+        <li>"Something I miss about our connection is…"</li>
+        <li>"One safe boundary I think we need to set is…"</li>
+        <li>"One way I can choose to believe the best about you instead of the worst is…"</li>
+      </ul>
+      <div class="field-group" style="margin-top:12px">
+        <div class="field-label">Notes from our conversation:</div>
+        <textarea id="ch4-convo" placeholder="What came up? What surprised you? What did you hear from your spouse?" oninput="save()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Guardrails for Our Marriage</div><div class="section-title">Together, complete this list</div></div>
+    <div class="section-body">
+      <div class="field-group"><div class="field-label">One boundary we will not cross:</div><input type="text" id="ch4-boundary" oninput="save()"></div>
+      <div class="field-group"><div class="field-label">One habit we will commit to (date night, prayer, daily check-in):</div><input type="text" id="ch4-habit" oninput="save()"></div>
+      <div class="field-group"><div class="field-label">One scripture we will stand on to protect our marriage:</div><input type="text" id="ch4-scripture" oninput="save()"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Journaling Reflection</div><div class="section-title">Write individually, then share</div></div>
+    <div class="section-body">
+      <p class="section-intro">Write your answers individually first, then choose what to share with your spouse.</p>
+      <div class="field-group"><div class="field-label">What activities, relationships, or distractions could be pulling my emotional energy away from our marriage?</div><textarea id="ch4-j1" oninput="save()"></textarea></div>
+      <div class="field-group"><div class="field-label">Have I minimized or excused any behaviors that might be forming unhealthy bonds?</div><textarea id="ch4-j2" oninput="save()"></textarea></div>
+      <div class="field-group"><div class="field-label">How can I invite God into this area to protect our marriage?</div><textarea id="ch4-j3" oninput="save()"></textarea></div>
+    </div>
+  </div>
+
+  <div class="prayer-box">
+    <div class="prayer-label">Chapter 4 Prayer — Pray hand-in-hand</div>
+    <div class="prayer-text">"Lord, we confess that sometimes we have allowed distance to creep into our marriage. Protect our hearts from seeking outside comfort or affirmation. Help us to believe the best about one another, to communicate openly, and to guard our emotional and physical intimacy. Grow us in the fruit of the Spirit — love, joy, peace, patience, kindness, goodness, faithfulness, gentleness, and self-control. Keep our hearts fully devoted to You and to each other. In Jesus' name, Amen."</div>
+  </div>
+
+  <div class="chapter-complete-bar" style="margin-top:20px">
+    <div class="complete-text">Mark complete when you've worked through this chapter together</div>
+    <button class="mark-complete-btn not-done" id="complete-ch4" onclick="toggleComplete('ch4')">Mark Complete</button>
+  </div>
+</div>
+
+<!-- CHAPTER 5 -->
+<div id="page-ch5" class="content hidden">
+  <div class="chapter-header">
+    <div class="chapter-eyebrow">Chapter 5</div>
+    <h2 class="chapter-title">Divorce (Emotional): Contract vs. Covenant</h2>
+    <p class="chapter-desc">"If you are coasting, you're going down, not up. The only way to rise is to fight for your marriage." Read this statement aloud together before beginning.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Reflection</div><div class="section-title">Am I Coasting or Climbing?</div></div>
+    <div class="section-body">
+      <p class="section-intro">Complete the following prompts individually and then discuss the results with your spouse.</p>
+      <div class="field-group"><div class="field-label">I know I've been "coasting" in our marriage when I…</div><textarea id="ch5-coast" oninput="save()" style="min-height:60px"></textarea></div>
+      <div class="field-group"><div class="field-label">One area where I feel distance growing between us is…</div><textarea id="ch5-distance" oninput="save()" style="min-height:60px"></textarea></div>
+      <div class="field-group"><div class="field-label">A small step I can take this week to re-engage is…</div><textarea id="ch5-reengage" oninput="save()" style="min-height:60px"></textarea></div>
+      <div class="field-group"><div class="field-label">I sense God calling me to grow in our marriage by…</div><textarea id="ch5-calling" oninput="save()" style="min-height:60px"></textarea></div>
+      <div class="field-group"><div class="field-label">One way I can actively support my spouse's heart this week is…</div><textarea id="ch5-support" oninput="save()" style="min-height:60px"></textarea></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Emotional Divorce Check-In</div><div class="section-title">Individual Assessment — Do Not Discuss Until Both Are Done</div></div>
+    <div class="section-body">
+      <p class="section-intro">This activity helps each spouse honestly assess whether emotional distance is growing in the marriage. The goal is not to create blame, but to create awareness and open doors for reconnection.</p>
+      <p class="section-intro">Each spouse should quietly read through the following statements and check the ones that describe how you honestly feel. Do not discuss with your spouse until both have completed the check-in.</p>
+      <div class="checklist" id="ch5-emotional-divorce"></div>
+      <hr class="section-divider">
+      <div class="wb-step-title">Step 3 — Compare Together</div>
+      <p class="section-intro">Sit together and gently share which statements you checked. Resist the urge to argue or defend. Instead, listen carefully and acknowledge your spouse's feelings.</p>
+      <div class="field-group">
+        <div class="field-label">What stood out as you compared your responses? Which statement surprised you? Where do you see patterns of distance?</div>
+        <textarea id="ch5-compare" oninput="save()"></textarea>
+      </div>
+      <div class="field-group">
+        <div class="field-label">What is one small step we can take this week to move closer together?</div>
+        <textarea id="ch5-step" oninput="save()" style="min-height:60px"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Truth Capture</div><div class="section-title">Covenant vs. Contract</div></div>
+    <div class="section-body">
+      <div class="scripture-card">
+        <div class="scripture-text">"She is your companion and your wife by covenant."</div>
+        <div class="scripture-ref">— Malachi 2:14</div>
+      </div>
+      <div class="field-group" style="margin-top:14px">
+        <div class="field-label">A contract is _______________. A covenant is _______________.</div>
+        <div class="two-col">
+          <input type="text" id="ch5-contract" placeholder="A contract is…" oninput="save()">
+          <input type="text" id="ch5-covenant-def" placeholder="A covenant is…" oninput="save()">
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">My marriage is more than a legal document; it is a vow before _______________.</div>
+        <input type="text" id="ch5-vow-before" oninput="save()">
+      </div>
+      <div class="field-group">
+        <div class="field-label">One sentence together that summarizes what our marriage covenant means to us as a couple:</div>
+        <textarea id="ch5-covenant" oninput="save()" style="min-height:60px"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Journaling Reflection</div><div class="section-title">Write Individually, Then Share</div></div>
+    <div class="section-body">
+      <div class="field-group"><div class="field-label">What does it mean to you that God Himself witnessed and signed your marriage covenant?</div><textarea id="ch5-j1" oninput="save()"></textarea></div>
+      <div class="field-group"><div class="field-label">Where have you forgotten that second signature?</div><textarea id="ch5-j2" oninput="save()"></textarea></div>
+      <div class="field-group"><div class="field-label">What practical change could you make to honor that covenant better this week?</div><textarea id="ch5-j3" oninput="save()"></textarea></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Activity</div><div class="section-title">Reclaiming First Love</div></div>
+    <div class="section-body">
+      <div class="scripture-card">
+        <div class="scripture-text">"You have left your first love."</div>
+        <div class="scripture-ref">— Revelation 2:4</div>
+      </div>
+      <div class="field-group" style="margin-top:14px">
+        <div class="field-label">Write down one thing you used to do at the start of your relationship that made your spouse feel loved:</div>
+        <textarea id="ch5-firstlove" oninput="save()"></textarea>
+      </div>
+      <p class="section-intro" style="margin-top:10px">Commit to doing that action this week. At the end of the week, ask: <em>"Did you feel loved by this?"</em></p>
+      <div class="field-group">
+        <div class="field-label">End-of-week check-in — Did your spouse feel loved? What did you notice?</div>
+        <textarea id="ch5-lovedcheck" placeholder="Come back here after your week…" oninput="save()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="prayer-box">
+    <div class="prayer-label">Chapter 5 Prayer — Pray holding hands</div>
+    <div class="prayer-text">Lord, thank You for being the witness of our marriage. We confess that at times we have treated our covenant like a contract. Forgive us for emotional distance and selfish choices. Teach us to love each other like You love us — faithfully, sacrificially, and without condition. Restore our first love and renew our commitment. Not our will, Lord, but Your will be done in our marriage. May our covenant reflect Your glory to the world. In Jesus' name, Amen.</div>
+  </div>
+
+  <div class="chapter-complete-bar" style="margin-top:20px">
+    <div class="complete-text">Mark complete when you've worked through this chapter together</div>
+    <button class="mark-complete-btn not-done" id="complete-ch5" onclick="toggleComplete('ch5')">Mark Complete</button>
+  </div>
+</div>
+
+<!-- CHAPTER 6 -->
+<div id="page-ch6" class="content hidden">
+  <div class="chapter-header">
+    <div class="chapter-eyebrow">Chapter 6</div>
+    <h2 class="chapter-title">Deception: Romance vs. Reality — The 5 R's</h2>
+    <p class="chapter-desc">Culture sells us a refund-style, receipt-based view of love. God calls us to a covenant — not convenience, not casual, but commitment that chooses to love through reality, ruts, resentment, and regret, and climbs back to oneness.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Fill in the Blanks</div><div class="section-title">Key Truths from This Chapter</div></div>
+    <div class="section-body">
+      <div class="field-group"><div class="field-label">1. Covenants are about _______________ (not convenience).</div><input type="text" id="ch6-b1" oninput="save()"></div>
+      <div class="field-group"><div class="field-label">2. God's expectation is: ___________, ___________, and watch Him do the ___________.</div><input type="text" id="ch6-b2" oninput="save()"></div>
+      <div class="field-group"><div class="field-label">3. If I don't make an intentional choice to love, I end up with a ___________ and no ___________.</div><input type="text" id="ch6-b3" oninput="save()"></div>
+      <div class="field-group"><div class="field-label">4. When I have entire conversations in my ___________ for my spouse, we never talk about the ___________.</div><input type="text" id="ch6-b4" oninput="save()"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">The 5 R's</div><div class="section-title">Map the Descent & Choose the Climb</div></div>
+    <div class="section-body">
+      <p class="section-intro">We often drift down these steps without realizing it. Read each stage together, then mark where you feel your marriage is today:</p>
+      <ul class="wb-list">
+        <li><strong>Romance</strong> — Idealized expectations, fairy-tale scripts</li>
+        <li><strong>Reality</strong> — Different doesn't mean "bad," just different</li>
+        <li><strong>Rut</strong> — Apathy, auto-pilot, mind-reading instead of conversation</li>
+        <li><strong>Resentment</strong> — Bitterness, blame, "civil war" triggers</li>
+        <li><strong>Regret</strong> — Resignation, escape fantasies, affair risks (emotional/physical)</li>
+      </ul>
+      <p class="wb-step-title">Step 2 — Individual Reflection</p>
+      <p class="section-intro">Each spouse should take a moment alone to answer. Write down your answers before sharing.</p>
+      <div class="field-group">
+        <div class="field-label">Which stage best describes where I feel we are in our marriage today?</div>
+        <div class="choices" id="ch6-5rs"></div>
+      </div>
+      <div class="field-group" style="margin-top:12px">
+        <div class="field-label">What thoughts, feelings, or habits show me that we are at this stage?</div>
+        <textarea id="ch6-stage-why" placeholder="Be real with each other about what you're noticing…" oninput="save()"></textarea>
+      </div>
+      <div class="field-group">
+        <div class="field-label">What is one area where I see myself contributing to this drift?</div>
+        <textarea id="ch6-my-part" oninput="save()" style="min-height:60px"></textarea>
+      </div>
+      <p class="section-intro" style="margin-top:10px">Come together and share your answers. Use active listening: do not interrupt or defend. Simply listen and receive what your spouse says.</p>
+      <hr class="section-divider">
+      <p class="wb-step-title">For the stage you identified, consider these climb steps:</p>
+      <ul class="wb-list">
+        <li><strong>Romance</strong> — Ground your expectations in truth; replace fantasy with gratitude for real blessings.</li>
+        <li><strong>Reality</strong> — Embrace differences as opportunities to grow; practice curiosity instead of criticism.</li>
+        <li><strong>Rut</strong> — Break the cycle by starting new conversations; schedule intentional connection time.</li>
+        <li><strong>Resentment</strong> — Confess hurts, forgive, and reset; commit to resolving conflict instead of fueling it.</li>
+        <li><strong>Regret</strong> — Seek help early (pastor, counselor, mentor couple); rebuild hope through prayer and action.</li>
+      </ul>
+      <div class="field-group" style="margin-top:12px">
+        <div class="field-label">As a couple, write down one specific action you will take this week to climb upward from your current stage:</div>
+        <textarea id="ch6-climb" oninput="save()" style="min-height:60px"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Today's Commitment</div><div class="section-title">Trading the "Receipt Mindset" for a Covenant Mindset</div></div>
+    <div class="section-body">
+      <div class="two-col">
+        <div class="field-group"><div class="field-label">Husband — Today I will trade my "receipt mindset" for a covenant mindset by:</div><textarea id="ch6-husband" oninput="save()" style="min-height:70px"></textarea></div>
+        <div class="field-group"><div class="field-label">Wife — Today I will trade my "receipt mindset" for a covenant mindset by:</div><textarea id="ch6-wife" oninput="save()" style="min-height:70px"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="prayer-box">
+    <div class="prayer-label">Chapter 6 Prayer — Read holding hands</div>
+    <div class="prayer-text">"Lord, open our eyes to see where we are and give us courage to climb together. Heal any hurt, remove any bitterness, and restore joy in our marriage. We choose covenant over comfort and commitment over escape. In Jesus' name, Amen."</div>
+  </div>
+
+  <div class="chapter-complete-bar" style="margin-top:20px">
+    <div class="complete-text">Mark complete when you've worked through this chapter together</div>
+    <button class="mark-complete-btn not-done" id="complete-ch6" onclick="toggleComplete('ch6')">Mark Complete</button>
+  </div>
+</div>
+
+<!-- CHAPTER 7 -->
+<div id="page-ch7" class="content hidden">
+  <div class="chapter-header">
+    <div class="chapter-eyebrow">Chapter 7</div>
+    <h2 class="chapter-title">Destruction: Mapping Roads and Building Walls</h2>
+    <p class="chapter-desc">"Can two walk together, except they be agreed?" — Amos 3:3. Take a moment to pray this scripture over your marriage. Ask the Lord to show you the areas where you need to come into agreement.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Opening Prayer</div><div class="section-title">Areas Where We Need to Come Into Agreement</div></div>
+    <div class="section-body">
+      <p class="section-intro">Before working through this chapter, sit together and pray Amos 3:3 over your marriage. Ask God to show you where you are not yet aligned. Write what He reveals:</p>
+      <div class="field-group"><textarea id="ch7-prayer-notes" placeholder="What areas of alignment did God surface during prayer?" oninput="save()"></textarea></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Mapping Your Roads — Fill in the Blank</div><div class="section-title">A roadmap gives your marriage direction and helps you avoid chaos</div></div>
+    <div class="section-body">
+      <p class="section-intro">Use this section to begin charting a path together. Discuss each area as a couple and write your shared commitments:</p>
+      <div class="two-col">
+        <div class="field-group"><div class="field-label">💰 Finances — Our financial goal this year is to:</div><textarea id="ch7-finances" oninput="save()" style="min-height:70px"></textarea></div>
+        <div class="field-group"><div class="field-label">👨‍👩‍👧 Family — We want to build our family culture around:</div><textarea id="ch7-family" oninput="save()" style="min-height:70px"></textarea></div>
+        <div class="field-group"><div class="field-label">🏃 Health — For our well-being together, we will prioritize:</div><textarea id="ch7-health" oninput="save()" style="min-height:70px"></textarea></div>
+        <div class="field-group"><div class="field-label">💼 Work — We will support each other in our careers by:</div><textarea id="ch7-work" oninput="save()" style="min-height:70px"></textarea></div>
+        <div class="field-group"><div class="field-label">💬 Communication — When conflict arises, we agree to:</div><textarea id="ch7-comm" oninput="save()" style="min-height:70px"></textarea></div>
+        <div class="field-group"><div class="field-label">🫂 Community — The godly mentors or friends we will lean on are:</div><textarea id="ch7-community" oninput="save()" style="min-height:70px"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Journaling Prompt</div><div class="section-title">Building Fences — Write Individually, Then Share</div></div>
+    <div class="section-body">
+      <div class="field-group"><div class="field-label">What do I need to eliminate from my life to protect our marriage?</div><textarea id="ch7-j1" oninput="save()"></textarea></div>
+      <div class="field-group"><div class="field-label">What cultural fences do I believe we should build together?</div><textarea id="ch7-j2" oninput="save()"></textarea></div>
+      <div class="field-group"><div class="field-label">How can I make our marriage feel more like a gift than a burden?</div><textarea id="ch7-j3" oninput="save()"></textarea></div>
+    </div>
+  </div>
+
+  <div class="prayer-box">
+    <div class="prayer-label">Chapter 7 Prayer — Read aloud together</div>
+    <div class="prayer-text">Lord, You are our map and our guardrail. Help us walk in agreement with each other and with You. Give us wisdom to build strong fences around our marriage, keeping sacred things sacred. Let our home be a sanctuary where Your voice is louder than the culture. Protect us from temptation, strengthen our communication, and surround us with godly community. We choose to treasure this marriage as Your gift. In Jesus' name, Amen.</div>
+  </div>
+
+  <div class="chapter-complete-bar" style="margin-top:20px">
+    <div class="complete-text">Mark complete when you've worked through this chapter together</div>
+    <button class="mark-complete-btn not-done" id="complete-ch7" onclick="toggleComplete('ch7')">Mark Complete</button>
+  </div>
+</div>
+
+<!-- CHAPTER 8 -->
+<div id="page-ch8" class="content hidden">
+  <div class="chapter-header">
+    <div class="chapter-eyebrow">Chapter 8</div>
+    <h2 class="chapter-title">Decision: Getting A's in Marriage, Part 1</h2>
+    <p class="chapter-desc">This chapter introduces four ways to "get A's" in your marriage: Affection, Adoration, Adjustment, and Assumptions. Getting an A isn't about perfection — it's about daily intention.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Reflection Starter</div><div class="section-title">The Four A's — Fill in the Blanks</div></div>
+    <div class="section-body">
+      <div class="field-group"><div class="field-label">1. Husbands are called to love their wives the way _______________ loves the church (Ephesians 5:25).</div><input type="text" id="ch8-b1" oninput="save()"></div>
+      <div class="field-group"><div class="field-label">2. Wives are called to ___________ and ___________ their husbands, even when they don't agree.</div><input type="text" id="ch8-b2" oninput="save()"></div>
+      <div class="field-group"><div class="field-label">3. To adore your spouse is to ___________ them as a gift from God.</div><input type="text" id="ch8-b3" oninput="save()"></div>
+      <div class="field-group"><div class="field-label">4. Adjustment requires moving from ___________ to ___________.</div><input type="text" id="ch8-b4" oninput="save()"></div>
+      <div class="field-group"><div class="field-label">5. Love chooses to assume the ___________ about your spouse, because love "believes all things."</div><input type="text" id="ch8-b5" oninput="save()"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Self-Assessment</div><div class="section-title">How Are We Doing? (Always / Sometimes / Rarely / Never)</div></div>
+    <div class="section-body">
+      <p class="section-intro">Rate yourself honestly on each practice area. After completing individually, each spouse should pick one area where they circled "Sometimes" or "Rarely" and explain why.</p>
+      <div id="ch8-4as"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Scripture Anchor</div><div class="section-title">Words to Carry This Week</div></div>
+    <div class="section-body">
+      <div class="scripture-card">
+        <div class="scripture-text">"You husbands in the same way, live with your wives in an understanding way… and show her honor as a fellow heir of the grace of life, so that your prayers will not be hindered."</div>
+        <div class="scripture-ref">— 1 Peter 3:7</div>
+      </div>
+      <div class="scripture-card" style="margin-top:10px">
+        <div class="scripture-text">"Be kind to one another, tenderhearted, forgiving each other, just as God in Christ also has forgiven you."</div>
+        <div class="scripture-ref">— Ephesians 4:32</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Journaling Prompts</div><div class="section-title">Personal Reflection</div></div>
+    <div class="section-body">
+      <div class="field-group"><div class="field-label">For Husbands — How can I better reflect God's unconditional love to my wife this week?</div><textarea id="ch8-husband" oninput="save()"></textarea></div>
+      <div class="field-group"><div class="field-label">For Wives — How can I demonstrate respect for my husband even when I disagree with him?</div><textarea id="ch8-wife" oninput="save()"></textarea></div>
+      <div class="field-group"><div class="field-label">For Both — Where am I holding onto "me" instead of "we"?</div><textarea id="ch8-both" oninput="save()"></textarea></div>
+      <div class="field-group"><div class="field-label">Bonus — What assumptions about my spouse need to be surrendered to God?</div><textarea id="ch8-assumptions" oninput="save()"></textarea></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Practical Exercise</div><div class="section-title">Adoration in Action</div></div>
+    <div class="section-body">
+      <p class="section-intro">Write down 3 small ways you will show adoration this week (examples: unexpected text of encouragement, a 5-minute cuddle, bragging on your spouse in public). Then put the three ideas on the calendar and commit to the action as a couple.</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <input type="text" id="ch8-ador1" placeholder="01 —" oninput="save()">
+        <input type="text" id="ch8-ador2" placeholder="02 —" oninput="save()">
+        <input type="text" id="ch8-ador3" placeholder="03 —" oninput="save()">
+      </div>
+    </div>
+  </div>
+
+  <div class="prayer-box">
+    <div class="prayer-label">Chapter 8 Prayer — Read aloud together</div>
+    <div class="prayer-text">Lord, thank You for joining us together as one. Teach us to love as You love and respect as You require. Remove selfishness from our hearts and replace it with unity. Help us to adore one another as precious gifts from You, to adjust with humility, and to assume the best in every conversation. Let our marriage reflect Your Kingdom. In Jesus' name, Amen.</div>
+  </div>
+
+  <div class="chapter-complete-bar" style="margin-top:20px">
+    <div class="complete-text">Mark complete when you've worked through this chapter together</div>
+    <button class="mark-complete-btn not-done" id="complete-ch8" onclick="toggleComplete('ch8')">Mark Complete</button>
+  </div>
+</div>
+
+<!-- CHAPTER 9 -->
+<div id="page-ch9" class="content hidden">
+  <div class="chapter-header">
+    <div class="chapter-eyebrow">Chapter 9</div>
+    <h2 class="chapter-title">Decision: Getting A's in Marriage, Part 2</h2>
+    <p class="chapter-desc">Love is not simply an emotion that comes and goes — it is a daily choice that reflects God's design for marriage. True love calls us to move beyond selfish desires and to intentionally seek the good of our spouse. It is in the daily decisions to listen, to affirm, to give attention and affection, and to create a safe place for honest conversation that a marriage thrives.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Fill-in-the-Blank Reflection</div><div class="section-title">Key Truths from Chapter 9</div></div>
+    <div class="section-body">
+      <div class="field-group"><div class="field-label">1. Love is not just a feeling; it is a _______________. (choice)</div><input type="text" id="ch9-b1" oninput="save()"></div>
+      <div class="field-group"><div class="field-label">2. God's way of love requires us to shift our focus from _______________ to _______________. (ourselves / our spouse)</div><input type="text" id="ch9-b2" oninput="save()"></div>
+      <div class="field-group"><div class="field-label">3. A husband's role is not only to provide, but also to give daily _______________ and _______________. (attention / affection)</div><input type="text" id="ch9-b3" oninput="save()"></div>
+      <div class="field-group"><div class="field-label">4. A wife strengthens her husband by offering _______________ and _______________. (affirmation / encouragement)</div><input type="text" id="ch9-b4" oninput="save()"></div>
+      <div class="field-group"><div class="field-label">5. Marriage flourishes when couples create a safe _______________ area where both can speak without fear. (customer service)</div><input type="text" id="ch9-b5" oninput="save()"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Self-Assessment</div><div class="section-title">The Six A's of Marriage — Grade Yourself (A–F)</div></div>
+    <div class="section-body">
+      <p class="section-intro">Grade yourself honestly (A–F) and explain why. Share with your spouse. Which "A" is your strongest? Which needs the most growth?</p>
+      <div id="ch9-6as"></div>
+      <div class="field-group" style="margin-top:14px">
+        <div class="field-label">Discuss: Which "A" is each of your strongest? Which needs the most growth?</div>
+        <textarea id="ch9-discuss" oninput="save()" placeholder="Notes from your discussion…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Journaling Prompts</div><div class="section-title">Personal Reflection</div></div>
+    <div class="section-body">
+      <p class="section-intro">Pastor Conway compared caring for a wife to tending a garden: preparing the soil, watering daily, and removing weeds.</p>
+      <div class="field-group"><div class="field-label">Husbands — In what specific ways can you "water" your wife this week?</div><textarea id="ch9-husband" oninput="save()"></textarea></div>
+      <div class="field-group"><div class="field-label">Wives — How can you affirm and encourage your husband this week?</div><textarea id="ch9-wife" oninput="save()"></textarea></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Step Up Challenge</div><div class="section-title">This Week, Choose One "A" to Strengthen Intentionally</div></div>
+    <div class="section-body">
+      <div class="choices" id="ch9-stepup"></div>
+      <div class="field-group" style="margin-top:14px">
+        <div class="field-label">End-of-week reflection — How did it go? What did you notice?</div>
+        <textarea id="ch9-stepup-reflect" placeholder="Come back here after your week to record what you noticed…" oninput="save()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="prayer-box">
+    <div class="prayer-label">Chapter 9 Prayer — Read aloud together</div>
+    <div class="prayer-text">Heavenly Father, thank You for calling us to love as You love. Teach us to put one another before ourselves with humility and joy. Help us to give daily attention, true affirmation, and tender affection. May we never stop seeking adventure in our marriage. Strengthen us to create a safe place for honest communication and to always choose love, as You chose us. In Jesus' name, Amen.</div>
+  </div>
+
+  <div class="chapter-complete-bar" style="margin-top:20px">
+    <div class="complete-text">Mark complete when you've worked through this chapter together</div>
+    <button class="mark-complete-btn not-done" id="complete-ch9" onclick="toggleComplete('ch9')">Mark Complete</button>
+  </div>
+</div>
+
+<!-- CHAPTER 10 -->
+<div id="page-ch10" class="content hidden">
+  <div class="chapter-header">
+    <div class="chapter-eyebrow">Chapter 10</div>
+    <h2 class="chapter-title">Destiny: Keeping God at the Center</h2>
+    <p class="chapter-desc">Destiny is not about possessions, achievements, or even the approval of others. It is about alignment. A couple walking hand in hand with Christ will find that joy, peace, and purpose follow naturally. The climb upward becomes steady, because their foundation rests not on shifting sand, but on the solid rock of God's promises.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Warm-Up</div><div class="section-title">God First, Everything Else Follows</div></div>
+    <div class="section-body">
+      <div class="field-group">
+        <div class="field-label">Memory verse — fill in the blank: "The Lord is my ___________; I shall not ___________." (Psalm 23:1)</div>
+        <input type="text" id="ch10-verse" oninput="save()">
+      </div>
+      <div class="field-group">
+        <div class="field-label">When we feel lack, we first run to: (circle one)</div>
+        <div class="choices" id="ch10-lack"></div>
+      </div>
+      <div class="field-group" style="margin-top:12px">
+        <div class="field-label">Our joy is rooted in: (circle one)</div>
+        <div class="choices" id="ch10-joy"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Snapshot Assessment</div><div class="section-title">Is God at the Center? (1 = Rarely True, 5 = Consistently True)</div></div>
+    <div class="section-body">
+      <p class="section-intro">Marriage flourishes when God is at the center, not pushed to the margins. Rate each statement honestly — this is not about a perfect score, but about gaining clarity together.</p>
+      <p class="wb-step-title">Instructions:</p>
+      <ul class="wb-list">
+        <li>Sit together in a quiet place, free from distractions. Pray briefly first.</li>
+        <li>Each spouse rates individually — don't influence each other's answers.</li>
+        <li>After both complete, share your responses and note where you align and where you differ.</li>
+        <li>Add your scores (6–30 total) and use the guide below to interpret together.</li>
+      </ul>
+      <div id="ch10-center-sliders" style="margin-top:14px"></div>
+      <div id="ch10-score-display" class="score-display" style="margin-top:12px">
+        <div class="score-num">—</div><div><div class="score-range">Rate all 6 items to see your score</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">God-Sized Needs</div><div class="section-title">Security · Purpose · Acceptance · Identity</div></div>
+    <div class="section-body">
+      <p class="section-intro">We often place God-sized needs on our spouse — needs only God can truly fill. For each need, identify where you're tempted to seek it, and commit to one small shift this week.</p>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="border:1px solid var(--gray-border);border-radius:8px;padding:13px;background:var(--cream)">
+          <div style="font-size:12px;font-weight:600;color:var(--rust);margin-bottom:8px">SECURITY — "God is my refuge." (Ps 91)</div>
+          <div class="two-col"><div><label class="input-label">Where I'm tempted to seek it:</label><input type="text" id="ch10-sec-seek" oninput="save()" style="margin-top:4px"></div><div><label class="input-label">One small shift this week:</label><input type="text" id="ch10-sec-shift" oninput="save()" style="margin-top:4px"></div></div>
+        </div>
+        <div style="border:1px solid var(--gray-border);border-radius:8px;padding:13px;background:var(--cream)">
+          <div style="font-size:12px;font-weight:600;color:var(--rust);margin-bottom:8px">PURPOSE — "Created for good works." (Eph 2:10)</div>
+          <div class="two-col"><div><label class="input-label">Where I'm tempted to seek it:</label><input type="text" id="ch10-pur-seek" oninput="save()" style="margin-top:4px"></div><div><label class="input-label">One small shift this week:</label><input type="text" id="ch10-pur-shift" oninput="save()" style="margin-top:4px"></div></div>
+        </div>
+        <div style="border:1px solid var(--gray-border);border-radius:8px;padding:13px;background:var(--cream)">
+          <div style="font-size:12px;font-weight:600;color:var(--rust);margin-bottom:8px">ACCEPTANCE — "No condemnation." (Rom 8:1)</div>
+          <div class="two-col"><div><label class="input-label">Where I'm tempted to seek it:</label><input type="text" id="ch10-acc-seek" oninput="save()" style="margin-top:4px"></div><div><label class="input-label">One small shift this week:</label><input type="text" id="ch10-acc-shift" oninput="save()" style="margin-top:4px"></div></div>
+        </div>
+        <div style="border:1px solid var(--gray-border);border-radius:8px;padding:13px;background:var(--cream)">
+          <div style="font-size:12px;font-weight:600;color:var(--rust);margin-bottom:8px">IDENTITY — "Chosen, royal, God's own." (1 Pet 2:9)</div>
+          <div class="two-col"><div><label class="input-label">Where I'm tempted to seek it:</label><input type="text" id="ch10-id-seek" oninput="save()" style="margin-top:4px"></div><div><label class="input-label">One small shift this week:</label><input type="text" id="ch10-id-shift" oninput="save()" style="margin-top:4px"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Rhythm Plan</div><div class="section-title">Frequency & Intimacy with God — A Simple Plan</div></div>
+    <div class="section-body">
+      <p class="section-intro">Write your "First-to-God" rule:</p>
+      <div class="field-group"><div class="field-label">"When conflict rises, we will each pause for ___ minutes to pray and ask, 'Lord, what in me needs to change?' before continuing."</div><input type="text" id="ch10-pause" placeholder="e.g. 10 minutes" oninput="save()"></div>
+      <p class="wb-step-title">Weekly Rhythm:</p>
+      <div class="two-col">
+        <div class="field-group"><label class="input-label">Individual "closet time" (day & time):</label><input type="text" id="ch10-quiet" oninput="save()" style="margin-top:4px"></div>
+        <div class="field-group"><label class="input-label">Pray together (day, time & length):</label><input type="text" id="ch10-pray-together" oninput="save()" style="margin-top:4px"></div>
+      </div>
+      <div class="field-group"><div class="field-label">Scripture we'll memorize together:</div><input type="text" id="ch10-scripture" oninput="save()"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Contentment Practice</div><div class="section-title">Gratitude Reset</div></div>
+    <div class="section-body">
+      <p class="section-intro">Marriage flourishes when God is at the center. Let's start with a gratitude reset.</p>
+      <div class="field-group"><div class="field-label">Fill in the blank: "Even if I never _______________, I will rejoice because _______________."</div><textarea id="ch10-content-blank" oninput="save()" style="min-height:60px"></textarea></div>
+      <div class="field-group">
+        <div class="field-label">Write five things we are grateful for together:</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <input type="text" id="ch10-grat1" placeholder="1." oninput="save()">
+          <input type="text" id="ch10-grat2" placeholder="2." oninput="save()">
+          <input type="text" id="ch10-grat3" placeholder="3." oninput="save()">
+          <input type="text" id="ch10-grat4" placeholder="4." oninput="save()">
+          <input type="text" id="ch10-grat5" placeholder="5." oninput="save()">
+        </div>
+      </div>
+      <div class="inline-quote">"God is most glorified in us when we are satisfied in Him. We choose satisfaction in Christ today." — Contentment confession, read aloud together.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-type">Bonus Journaling Prompts</div><div class="section-title">Closing Reflections</div></div>
+    <div class="section-body">
+      <div class="field-group"><div class="field-label">Lord, where am I asking my spouse to be my savior? Show me and help me repent.</div><textarea id="ch10-j1" oninput="save()"></textarea></div>
+      <div class="field-group"><div class="field-label">What would it look like for Your voice to be the loudest in my heart this week?</div><textarea id="ch10-j2" oninput="save()"></textarea></div>
+      <div class="field-group"><div class="field-label">Where is envy stealing my joy?</div><textarea id="ch10-j3" oninput="save()"></textarea></div>
+      <div class="field-group"><div class="field-label">Where in our marriage do we need to "stay and do the work" instead of giving up?</div><textarea id="ch10-j4" oninput="save()"></textarea></div>
+      <div class="field-group"><div class="field-label">Who are the like-minded Christian couples we can lean on for encouragement and accountability?</div><textarea id="ch10-j5" oninput="save()"></textarea></div>
+    </div>
+  </div>
+
+  <div class="prayer-box">
+    <div class="prayer-label">Closing Prayer — Read aloud together</div>
+    <div class="prayer-text">Father, You are our Shepherd; we shall not want. We confess that we have sometimes sought from each other what only You can give: our security, purpose, acceptance, and identity. We release those needs back to You. Teach us to come to You first, to keep Your voice loudest, and to walk in wisdom with healthy boundaries. Align our hearts with Your mission, seeking first Your kingdom, serving the least, and making disciples. Fill our home with Your presence, our mouths with thanksgiving, and our calendar with obedience. Knit us together in love, humility, and joy. We choose You at the center of our marriage today and every day. In Jesus' name, Amen.</div>
+  </div>
+
+  <div class="chapter-complete-bar" style="margin-top:20px">
+    <div class="complete-text">Mark complete when you've worked through this chapter together</div>
+    <button class="mark-complete-btn not-done" id="complete-ch10" onclick="toggleComplete('ch10')">Mark Complete</button>
+  </div>
+</div>
+
+</main>
+</div>
+
+<div class="save-toast" id="save-toast">Saved ✓</div>
+
+<script>
+const chapters=['intro','ch1','ch2','ch3','ch4','ch5','ch6','ch7','ch8','ch9','ch10'];
+let state={};
+
+function loadState(){try{state=JSON.parse(localStorage.getItem('goingup_v2')||'{}')}catch(e){state={}}}
+function saveToStorage(){try{localStorage.setItem('goingup_v2',JSON.stringify(state))}catch(e){}}
+
+function save(){
+  document.querySelectorAll('textarea,input[type="text"]').forEach(el=>{if(el.id)state[el.id]=el.value});
+  document.querySelectorAll('input[type="range"]').forEach(el=>{if(el.id)state[el.id]=el.value});
+  saveToStorage();showToast();updateProgress();
+}
+
+function restoreState(){
+  document.querySelectorAll('textarea,input[type="text"]').forEach(el=>{if(el.id&&state[el.id]!==undefined)el.value=state[el.id]});
+  document.querySelectorAll('input[type="range"]').forEach(el=>{
+    if(el.id&&state[el.id]!==undefined){el.value=state[el.id];const v=document.getElementById(el.id+'_val');if(v)v.textContent=el.value}
+  });
+  document.querySelectorAll('[data-cg]').forEach(btn=>{
+    if(state['cg_'+btn.dataset.cg]===btn.dataset.val){btn.classList.add('selected');const d=btn.querySelector('.choice-dot');if(d){d.style.borderColor='var(--rust)';d.style.background='var(--rust)';d.style.boxShadow='inset 0 0 0 3px white'}}
+  });
+  document.querySelectorAll('[data-checkid]').forEach(el=>{
+    if(state['chk_'+el.dataset.checkid]){el.classList.add('checked');const b=el.querySelector('.check-box');if(b)b.textContent='✓'}
+  });
+  document.querySelectorAll('[data-acol]').forEach(btn=>{
+    if(state['ac_'+btn.dataset.arow+'_'+btn.dataset.apfx]===btn.dataset.acol){btn.classList.add('selected')}
+  });
+  chapters.forEach(ch=>{
+    if(state['done_'+ch]){
+      document.getElementById('btn-'+ch)?.classList.add('completed');
+      const b=document.getElementById('complete-'+ch);
+      if(b){b.textContent='✓ Done';b.classList.remove('not-done');b.classList.add('done')}
+    }
+  });
+  updateScore();updateProgress();
+}
+
+let toastT;
+function showToast(){const t=document.getElementById('save-toast');t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),1400)}
+
+function showChapter(id){
+  document.querySelectorAll('[id^="page-"]').forEach(p=>p.classList.add('hidden'));
+  document.querySelectorAll('.chapter-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id)?.classList.remove('hidden');
+  document.getElementById('btn-'+id)?.classList.add('active');
+}
+
+function toggleComplete(id){
+  state['done_'+id]=!state['done_'+id];
+  const btn=document.getElementById('complete-'+id),nav=document.getElementById('btn-'+id);
+  if(state['done_'+id]){btn.textContent='✓ Done';btn.classList.remove('not-done');btn.classList.add('done');nav?.classList.add('completed')}
+  else{btn.textContent='Mark Complete';btn.classList.remove('done');btn.classList.add('not-done');nav?.classList.remove('completed')}
+  save();
+}
+
+function updateProgress(){
+  const done=chapters.filter(c=>state['done_'+c]).length;
+  const pct=Math.round((done/chapters.length)*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-pct').textContent=pct+'%';
+}
+
+// Choice buttons
+function addChoice(containerId,groupId,val,label){
+  const c=document.getElementById(containerId);if(!c)return;
+  const btn=document.createElement('button');
+  btn.className='choice-btn';btn.dataset.cg=groupId;btn.dataset.val=val;
+  btn.innerHTML=`<span class="choice-dot"></span>${label}`;
+  btn.onclick=()=>{
+    document.querySelectorAll(`[data-cg="${groupId}"]`).forEach(b=>{b.classList.remove('selected');const d=b.querySelector('.choice-dot');if(d){d.style.borderColor='';d.style.background='';d.style.boxShadow=''}});
+    btn.classList.add('selected');const dot=btn.querySelector('.choice-dot');if(dot){dot.style.borderColor='var(--rust)';dot.style.background='var(--rust)';dot.style.boxShadow='inset 0 0 0 3px white'};
+    state['cg_'+groupId]=val;save();
+  };
+  c.appendChild(btn);
+}
+
+function buildChoices(cid,gid,opts){opts.forEach(o=>addChoice(cid,gid,o.v,o.l))}
+
+// Checkbox items
+function buildChecklist(cid,items){
+  const c=document.getElementById(cid);if(!c)return;
+  items.forEach((item,i)=>{
+    const id=cid+'_'+i;
+    const div=document.createElement('div');div.className='check-item';div.dataset.checkid=id;
+    div.innerHTML=`<div class="check-box"></div><div class="check-text">${item}</div>`;
+    div.onclick=()=>{div.classList.toggle('checked');const b=div.querySelector('.check-box');b.textContent=div.classList.contains('checked')?'✓':'';state['chk_'+id]=div.classList.contains('checked');save()};
+    c.appendChild(div);
+  });
+}
+
+// Slider builder
+function buildSliders(cid,items){
+  const c=document.getElementById(cid);if(!c)return;
+  items.forEach(s=>{
+    const d=document.createElement('div');d.style.marginBottom='14px';
+    d.innerHTML=`<div style="font-size:13px;color:var(--gray-dark);margin-bottom:6px;line-height:1.4">${s.l}</div><div class="slider-row"><span style="font-size:11px;color:var(--gray-mid)">1</span><input type="range" min="1" max="5" value="${state[s.id]||1}" id="${s.id}" oninput="document.getElementById('${s.id}_val').textContent=this.value;save()"><span style="font-size:11px;color:var(--gray-mid)">5</span><span class="slider-val" id="${s.id}_val">${state[s.id]||1}</span></div>`;
+    c.appendChild(d);
+  });
+}
+
+// Table assessment builder
+function buildTable(cid,rows,cols,pfx){
+  const c=document.getElementById(cid);if(!c)return;
+  // header
+  const hdr=document.createElement('div');hdr.style.cssText='display:flex;margin-bottom:6px';
+  hdr.innerHTML=`<div style="flex:2;font-size:11px;color:var(--gray-mid);padding:0 2px"></div>`+cols.map(col=>`<div style="flex:1;font-size:11px;color:var(--gray-mid);text-align:center">${col}</div>`).join('');
+  c.appendChild(hdr);
+  rows.forEach((row,ri)=>{
+    const rowDiv=document.createElement('div');rowDiv.className='assess-row';
+    const label=document.createElement('div');label.className='assess-label';label.textContent=row;rowDiv.appendChild(label);
+    const colsDiv=document.createElement('div');colsDiv.className='assess-cols';
+    cols.forEach(col=>{
+      const btn=document.createElement('button');btn.className='assess-col-btn';btn.textContent=col;
+      btn.dataset.acol=col;btn.dataset.arow=ri;btn.dataset.apfx=pfx;
+      if(state['ac_'+ri+'_'+pfx]===col)btn.classList.add('selected');
+      btn.onclick=()=>{colsDiv.querySelectorAll('button').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');state['ac_'+ri+'_'+pfx]=col;save()};
+      colsDiv.appendChild(btn);
+    });
+    rowDiv.appendChild(colsDiv);c.appendChild(rowDiv);
+  });
+}
+
+function updateScore(){
+  const ids=['ch10_s1','ch10_s2','ch10_s3','ch10_s4','ch10_s5','ch10_s6'];
+  const total=ids.reduce((a,id)=>a+parseInt(state[id]||1),0);
+  const el=document.getElementById('ch10-score-display');if(!el)return;
+  let range,msg;
+  if(total>=24){range='24–30: God-centered momentum';msg='Protect it with prayer, accountability, and continued intentionality.'}
+  else if(total>=16){range='16–23: Good movement';msg='Choose one focus area this week where you can take a step closer to centering on God.'}
+  else{range='15 or below: Start small, start today';msg='Pick two micro-habits (daily prayer, gratitude list, weekly couple\'s devotional) and begin today.'}
+  el.innerHTML=`<div class="score-num">${total}</div><div><div class="score-range">${range}</div><div class="score-msg">${msg}</div></div>`;
+}
+
+function init(){
+  loadState();
+
+  // INTRO
+  buildChoices('stairs-assessment','stairs_where',[
+    {v:'looking',l:'🔍 Still looking for the stairs — we don\'t know where to start'},
+    {v:'stuck',l:'🧱 Stuck on one step — we\'ve hit a wall and can\'t move forward'},
+    {v:'down',l:'📉 Heading down instead of up — we\'re going backwards'},
+    {v:'climbing',l:'🚶 Climbing steadily — we\'re progressing with effort'},
+    {v:'views',l:'🌅 Reaching new views — we\'ve found fresh joy together'},
+  ]);
+
+  // CH1
+  ['chaotic','lived-in','orderly','ultra-orderly'].forEach(v=>{
+    ['ch1-a-homestyle','ch1-b-homestyle'].forEach(cid=>{
+      const s=cid.includes('-a-')?'a':'b';addChoice(cid,'ch1_'+s+'_home',v,v.charAt(0).toUpperCase()+v.slice(1));
+    });
+  });
+  buildSliders('ch1-conflict-sliders',[
+    {id:'ch1_s1',l:'Winning / Proving Right'},
+    {id:'ch1_s2',l:'Avoiding / Pulling Away'},
+    {id:'ch1_s3',l:'Compromising / Peacemaking'},
+    {id:'ch1_s4',l:'Submitting / Keeping Peace at All Costs'},
+    {id:'ch1_s5',l:'Praying / Seeking God First'},
+  ]);
+
+  // CH2
+  buildChoices('ch2-conflict','ch2_conflict',[
+    {v:'a',l:'A — Try to win the argument'},
+    {v:'b',l:'B — Shut down or withdraw'},
+    {v:'c',l:'C — Look for how God might be shaping me'},
+  ]);
+  buildChoices('ch2-mindset','ch2_mindset',[
+    {v:'a',l:'A — "What can I get?"'},
+    {v:'b',l:'B — "What can I avoid?"'},
+    {v:'c',l:'C — "How can I out-serve them?"'},
+  ]);
+  buildChoices('ch2-unhappy','ch2_unhappy',[
+    {v:'a',l:'A — Blame my spouse'},
+    {v:'b',l:'B — Compare to others'},
+    {v:'c',l:'C — Pray for God\'s shaping work in both of us'},
+  ]);
+
+  // CH3
+  buildChecklist('ch3-conflict-style',[
+    'I focus mostly on my needs in moments of conflict.',
+    'I try to listen and seek understanding.',
+    'I sometimes shut down and go silent.',
+    'I proactively work on solutions with my spouse.',
+  ]);
+  buildChoices('ch3-relationship-type','ch3_reltype',[
+    {v:'reactive',l:'⚡ Reactive — We only deal with problems when they explode'},
+    {v:'proactive',l:'✅ Proactive — We plan ahead and face challenges together'},
+    {v:'radioactive',l:'☢️ Radioactive — Communication feels toxic; we may need outside help'},
+  ]);
+
+  // CH4
+  buildChecklist('ch4-yesno',[
+    'I sometimes share more personal details with a co-worker, friend, or online contact than I do with my spouse.',
+    'I mentally rehearse arguments and assume I know how my spouse will respond before I even speak to them.',
+    'I have ever thought: "It\'s easier to talk to ___ than to my spouse."',
+    'I use hobbies, work, or screens (TV, gaming, social media) to avoid difficult conversations.',
+  ]);
+
+  // CH5
+  buildChecklist('ch5-emotional-divorce',[
+    'I sometimes find it easier to share my thoughts with friends, coworkers, or hobbies than with my spouse.',
+    'I often think, "This is just how marriage will be from now on."',
+    'I stay more for the kids, finances, or image than for love and covenant.',
+    'I feel like my spouse and I are living separate lives under the same roof.',
+  ]);
+
+  // CH6
+  buildChoices('ch6-5rs','ch6_5rs',[
+    {v:'romance',l:'💫 Romance — Idealized expectations, fairy-tale scripts'},
+    {v:'reality',l:'🌱 Reality — Different doesn\'t mean "bad," just different'},
+    {v:'rut',l:'😶 Rut — Apathy, auto-pilot, mind-reading instead of conversation'},
+    {v:'resentment',l:'😤 Resentment — Bitterness, blame, "civil war" triggers'},
+    {v:'regret',l:'😔 Regret — Resignation, escape fantasies, affair risks'},
+  ]);
+
+  // CH8
+  buildTable('ch8-4as',[
+    'I express love/respect regardless of mood or behavior.',
+    'I regularly show my spouse I adore them (small acts, words, gestures).',
+    'I willingly adjust when my spouse\'s perspective is better for "us."',
+    'I choose to believe the best instead of assuming the worst.',
+  ],['Always','Sometimes','Rarely','Never'],'ch8');
+
+  // CH9
+  buildTable('ch9-6as',[
+    'Adoration — I actively show my spouse that I cherish them.',
+    'Assumption — I assume the best about my spouse\'s intentions.',
+    'Attention — I give focused, consistent time and care.',
+    'Affirmation — I speak life into my spouse regularly.',
+    'Affection — I express nonsexual affection daily.',
+    'Adventure — I plan and pursue new experiences with my spouse.',
+  ],['A','B','C','D','F'],'ch9');
+  buildChoices('ch9-stepup','ch9_stepup',[
+    {v:'adoration',l:'Adoration → Write my spouse a handwritten note of love'},
+    {v:'assumption',l:'Assumption → Next time conflict arises, pause and assume the best'},
+    {v:'attention',l:'Attention → Plan 30 minutes of distraction-free time together'},
+    {v:'affirmation',l:'Affirmation → Speak 3 specific affirmations over my spouse daily'},
+    {v:'affection',l:'Affection → Share at least 3 nonsexual touches each day'},
+    {v:'adventure',l:'Adventure → Plan one new, fun activity to experience together'},
+  ]);
+
+  // CH10
+  buildChoices('ch10-lack','ch10_lack',[
+    {v:'god',l:'God'},
+    {v:'friends',l:'Friends'},
+    {v:'social',l:'Social media'},
+    {v:'spouse',l:'My spouse'},
+  ]);
+  buildChoices('ch10-joy','ch10_joy',[
+    {v:'christ',l:'Christ'},
+    {v:'circumstances',l:'Circumstances'},
+    {v:'achievements',l:'Achievements'},
+    {v:'others',l:'Others\' approval'},
+  ]);
+
+  const sliderContainer=document.getElementById('ch10-center-sliders');
+  const ch10s=[
+    {id:'ch10_s1',l:'We take our concerns to God before we take them to others.'},
+    {id:'ch10_s2',l:'Our contentment doesn\'t collapse when we lack something we want.'},
+    {id:'ch10_s3',l:'We have wise boundaries with close friends (especially opposite sex).'},
+    {id:'ch10_s4',l:'We do not place God-sized needs (security, purpose, acceptance, identity) on each other.'},
+    {id:'ch10_s5',l:'Our calendar and budget reflect God\'s mission (service, generosity, discipleship).'},
+    {id:'ch10_s6',l:'We pray together weekly and individually daily.'},
+  ];
+  ch10s.forEach(s=>{
+    const d=document.createElement('div');d.style.marginBottom='16px';
+    d.innerHTML=`<div style="font-size:13px;color:var(--gray-dark);margin-bottom:6px;line-height:1.45">${s.l}</div><div class="slider-row"><span style="font-size:11px;color:var(--gray-mid)">1 Rarely</span><input type="range" min="1" max="5" value="${state[s.id]||1}" id="${s.id}" oninput="document.getElementById('${s.id}_val').textContent=this.value;updateScore();save()"><span style="font-size:11px;color:var(--gray-mid)">5 Always</span><span class="slider-val" id="${s.id}_val">${state[s.id]||1}</span></div>`;
+    sliderContainer.appendChild(d);
+  });
+
+  restoreState();
+}
+
+window.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
