@@ -1,0 +1,1930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Training Schedule Planner</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #dbe1ea;
+      --accent: #c96a26;
+      --accent-dark: #a7551c;
+      --good: #0f766e;
+      --warn: #b45309;
+      --bad: #b91c1c;
+      --header: #c96a26;
+      --header-text: #111827;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 12px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 28px;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button, select, input {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      background: var(--accent);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:hover { background: var(--accent-dark); }
+
+    .ghost {
+      background: white;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .ghost:hover { background: #f9fafb; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 390px 1fr;
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+    }
+
+    .card h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    input, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .tiny {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfcfe;
+    }
+
+    .stat .label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .stat .value {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .sheet-wrap {
+      overflow-x: auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+    }
+
+    table.sheet {
+      width: 100%;
+      min-width: 1340px;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    .sheet th:nth-child(2),
+    .sheet td:nth-child(2) {
+      width: 460px;
+      min-width: 360px;
+    }
+
+    .sheet th,
+    .sheet td {
+      border: 1px solid var(--line);
+      padding: 14px 10px;
+      vertical-align: middle;
+      font-size: 14px;
+    }
+
+    .sheet thead th {
+      background: var(--header);
+      color: var(--header-text);
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .sheet td.total-col,
+    .sheet td.flex-col,
+    .sheet td.day-total-col {
+      text-align: center;
+      background: #fcfcfd;
+    }
+
+    .sheet td.total-col .big,
+    .sheet td.day-total-col .big,
+    .sheet td.flex-col .big {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .sheet td.day-total-col.good .big { color: var(--good); }
+    .sheet td.day-total-col.warning .big { color: var(--warn); }
+    .sheet td.day-total-col.over .big { color: var(--bad); }
+
+    .sheet td.day-total-col.over {
+      background: #fee2e2;
+    }
+    .sheet td:nth-child(2) input {
+      font-weight: 600;
+    }
+
+    .sheet td.flex-col {
+      min-width: 260px;
+    }
+
+    .sheet .flex-box {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px 14px;
+      align-items: center;
+      text-align: left;
+      margin-bottom: 10px;
+    }
+
+    .sheet .flex-box:last-child { margin-bottom: 0; }
+
+    .sheet .flex-label {
+      font-weight: 700;
+    }
+
+    .text-input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      white-space: normal;
+      word-break: break-word;
+      line-height: 1.35;
+    }
+
+    .activity-textarea {
+      width: 100%;
+      min-height: 42px;
+      resize: none;
+      overflow: hidden;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font: inherit;
+      line-height: 1.35;
+    }
+
+    .duration-editor {
+      display: grid;
+      grid-template-columns: minmax(0, 62px) 28px minmax(0, 72px) 34px;
+      gap: 6px;
+      align-items: center;
+      justify-content: start;
+      max-width: 100%;
+    }
+
+    .duration-editor input,
+    .duration-editor select {
+      padding: 8px 6px;
+      border-radius: 8px;
+      text-align: center;
+      min-width: 0;
+      width: 100%;
+    }
+
+    .duration-editor .suffix {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .duration-editor.compact {
+      grid-template-columns: 54px 24px 68px 28px;
+    }
+
+    .sheet .actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .pill-btn {
+      padding: 7px 10px;
+      font-size: 12px;
+      border-radius: 999px;
+      background: white;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .pill-btn.delete {
+      color: var(--bad);
+      border-color: #fecaca;
+      background: #fff5f5;
+    }
+
+    .help {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 10px;
+      line-height: 1.4;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .empty {
+      padding: 20px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+
+
+    .planner-day-filter {
+      position: relative;
+      width: 100%;
+    }
+
+    .day-filter-btn {
+      width: 100%;
+      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .day-filter-menu {
+      position: absolute;
+      left: 0;
+      top: calc(100% + 6px);
+      width: 100%;
+      max-height: 340px;
+      overflow-y: auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.16);
+      padding: 10px;
+      z-index: 50;
+    }
+
+    .day-filter-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .day-filter-row:hover {
+      background: #f9fafb;
+    }
+
+    .day-filter-row input {
+      width: auto;
+      padding: 0;
+    }
+
+    .day-filter-actions {
+      display: flex;
+      gap: 8px;
+      padding: 8px 8px 10px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 6px;
+    }
+
+    .mini-btn {
+      padding: 6px 8px;
+      font-size: 12px;
+      border-radius: 8px;
+    }
+
+
+    .tooltip-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .custom-tooltip {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 280px;
+      background: #111827;
+      color: #ffffff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      line-height: 1.35;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.24);
+      z-index: 1000;
+      white-space: normal;
+    }
+
+    .custom-tooltip::before {
+      content: "";
+      position: absolute;
+      top: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-bottom: 6px solid #111827;
+    }
+
+    .tooltip-wrap:hover .custom-tooltip,
+    .tooltip-wrap:focus-within .custom-tooltip {
+      display: block;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(17,24,39,0.55);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal {
+      width: min(900px, 96vw);
+      background: white;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      padding: 18px;
+    }
+    .modal h2 { margin: 0 0 10px; font-size: 20px; }
+    .paste-box {
+      width: 100%;
+      min-height: 320px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.4;
+      resize: vertical;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 1100px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  
+@media print {
+  body { background: white !important; }
+
+  .toolbar,
+  .card:first-child,
+  .card:last-child,
+  .help,
+  .tiny,
+  .actions,
+  button,
+  input[type="file"] {
+    display: none !important;
+  }
+
+  .wrap {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .grid { display: block !important; }
+
+  .sheet-wrap {
+    border: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  table.sheet {
+    min-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .sheet th,
+  .sheet td {
+    font-size: 12px !important;
+    padding: 8px !important;
+  }
+
+  h1 {
+    font-size: 20px !important;
+    margin-bottom: 12px !important;
+  }
+}
+
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div>
+        <h1>Training Schedule Planner</h1>
+        <div class="sub">All entry fields now use hours and minutes. Calculated values also display in hours/minutes format.</div>
+      </div>
+      
+<div class="toolbar">
+        <input id="planName" placeholder="Plan name (e.g. Week 1 Training)" style="padding:10px 12px;border-radius:10px;border:1px solid var(--line);min-width:260px;max-width:320px;background:white;" />
+        <button id="saveBtn">Save File</button>
+        <button id="loadBtn" class="ghost">Load File</button>
+        <input id="fileInput" type="file" accept=".json" style="display:none;" />
+        <button id="pdfBtn" class="ghost">Save PDF</button>
+        <button id="wordBtn" class="ghost">Save Word</button>
+        <span class="tooltip-wrap">
+          <button id="importPasteBtn" class="ghost" type="button">Paste Import</button>
+          <span class="custom-tooltip">
+            <strong>Paste Import</strong><br>
+            Copy <strong>columns B–D</strong> starting at <strong>row 2</strong>, then click Paste Import and paste the copied data.
+          </span>
+        </span>
+        <button id="loadSampleBtn" class="ghost">Load sample data</button>
+        <button id="exportBtn" class="ghost">Export JSON</button>
+        <button id="clearBtn" class="ghost">Clear all</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div>
+        <div class="card">
+          <h2>Planner Settings</h2>
+          <div class="form-grid">
+            <div class="field">
+              <label>Daily total cap</label>
+              <div class="duration-editor">
+                <input id="dailyCapHours" type="number" min="0" max="23" step="1" />
+                <span class="suffix">hr</span>
+                <select id="dailyCapMinutes"></select>
+                <span class="suffix">min</span>
+              </div>
+            </div>
+            <div class="field">
+              <label>Break total</label>
+              <div class="duration-editor">
+                <input id="breakTotalHours" type="number" min="0" max="23" step="1" />
+                <span class="suffix">hr</span>
+                <select id="breakTotalMinutes"></select>
+                <span class="suffix">min</span>
+              </div>
+            </div>
+            <div class="field">
+              <label>Lunch total</label>
+              <div class="duration-editor">
+                <input id="lunchTotalHours" type="number" min="0" max="23" step="1" />
+                <span class="suffix">hr</span>
+                <select id="lunchTotalMinutes"></select>
+                <span class="suffix">min</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="defaultDay">Default day label</label>
+              <input id="defaultDay" class="text-input" type="text" value="Day 1" />
+            </div>
+            <div class="field">
+              <label>View Days</label>
+              <div class="day-filter planner-day-filter">
+                <button id="dayFilterBtn" class="ghost day-filter-btn" type="button">Days ▼</button>
+                <div id="dayFilterMenu" class="day-filter-menu" style="display:none;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="help">Flex time is auto-calculated for each day using that day’s break and lunch: <strong>daily cap - activity duration total - break - lunch</strong>.</div>
+          <div class="stats">
+            <div class="stat">
+              <div class="label">Total activities</div>
+              <div class="value" id="activityCount">0</div>
+            </div>
+            <div class="stat">
+              <div class="label">Training days</div>
+              <div class="value" id="dayCount">0</div>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="card" style="margin-top: 18px;">
+          <h2>Course Information</h2>
+          <div class="form-grid">
+            <div class="field">
+              <label for="courseCode">Course Code</label>
+              <input id="courseCode" class="text-input" type="text" placeholder="SLS 101" />
+            </div>
+            <div class="field">
+              <label for="instructors">Instructors</label>
+              <input id="instructors" class="text-input" type="text" placeholder="Instructor name(s)" />
+            </div>
+            <div class="field">
+              <label for="location">Location</label>
+              <input id="location" class="text-input" type="text" placeholder="Classroom / virtual" />
+            </div>
+            <div class="field">
+              <label for="courseDates">Course Dates</label>
+              <input id="courseDates" class="text-input" type="text" placeholder="April 1–30, 2026" />
+            </div>
+            <div class="field">
+              <label for="zoomLink">Zoom Link</label>
+              <input id="zoomLink" class="text-input" type="text" placeholder="https://..." />
+            </div>
+            <div class="field">
+              <label for="timeZone">Time Zone</label>
+              <input id="timeZone" class="text-input" type="text" placeholder="Central Time" />
+            </div>
+            <div class="field">
+              <label for="classTime">Class Time</label>
+              <input id="classTime" class="text-input" type="text" placeholder="9:00 AM – 4:30 PM" />
+            </div>
+          </div>
+          <div class="tiny">These values save with the planner JSON and appear in Word/PDF exports.</div>
+        </div>
+
+        <div class="card" style="margin-top: 18px;">
+          <h2>Add Activity</h2>
+          <div class="form-grid">
+            <div class="field">
+              <label for="dayInput">Day</label>
+              <input id="dayInput" class="text-input" type="text" placeholder="Day 1" />
+            </div>
+            <div class="field">
+              <label>Duration</label>
+              <div class="duration-editor">
+                <input id="addDurationHours" type="number" min="0" max="23" step="1" />
+                <span class="suffix">hr</span>
+                <select id="addDurationMinutes"></select>
+                <span class="suffix">min</span>
+              </div>
+            </div>
+            <div class="field full">
+              <label for="activityInput">Activity</label>
+              <input id="activityInput" class="text-input" type="text" placeholder="Billing Content Review" />
+            </div>
+          </div>
+          <div style="margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap;">
+            <button id="addBtn">Add activity</button>
+            <button id="addDebriefBtn" class="ghost">Quick add Debrief (0:30)</button>
+          </div>
+          <div class="tiny">Everything saves automatically in your browser.</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="sheet-wrap">
+          <table class="sheet">
+            <thead>
+              <tr>
+                <th style="width: 120px;">Day</th>
+                <th>Activity</th>
+                <th style="width: 200px;">Activity Duration<br>(entry format)</th>
+                <th style="width: 180px;">Activity Duration<br>Total</th>
+                <th style="width: 300px;">Flex, Break & Lunch Duration</th>
+                <th style="width: 180px;">Total</th>
+                <th style="width: 150px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="scheduleBody"></tbody>
+          </table>
+        </div>
+        <div class="help">Every entry field now uses hours/minutes instead of browser time pickers.</div>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="importModal" class="modal-backdrop" style="display:none;">
+    <div class="modal">
+      <h2>Paste Schedule Import</h2>
+      <p class="help" style="margin-top:0;">Copy rows from Word, PDF, or Excel and paste them below. Works best when the copied data includes table columns.</p>
+      <textarea id="pasteImportText" class="paste-box" placeholder="Paste table rows here..."></textarea>
+      <div class="modal-actions">
+        <button id="runPasteImportBtn">Import pasted data</button>
+        <button id="cancelPasteImportBtn" class="ghost">Cancel</button>
+      </div>
+      <div class="tiny">Expected rows: Day | Activity | Duration, or Week | Day | Activity | Duration.</div>
+    </div>
+  </div>
+
+
+  <script>
+    const STORAGE_KEY = 'training_schedule_planner_all_hr_min_v1';
+
+    const els = {
+      dailyCapHours: document.getElementById('dailyCapHours'),
+      dailyCapMinutes: document.getElementById('dailyCapMinutes'),
+      breakTotalHours: document.getElementById('breakTotalHours'),
+      breakTotalMinutes: document.getElementById('breakTotalMinutes'),
+      lunchTotalHours: document.getElementById('lunchTotalHours'),
+      lunchTotalMinutes: document.getElementById('lunchTotalMinutes'),
+      defaultDay: document.getElementById('defaultDay'),
+      planName: document.getElementById('planName'),
+      dayInput: document.getElementById('dayInput'),
+      activityInput: document.getElementById('activityInput'),
+      addDurationHours: document.getElementById('addDurationHours'),
+      addDurationMinutes: document.getElementById('addDurationMinutes'),
+      addBtn: document.getElementById('addBtn'),
+      addDebriefBtn: document.getElementById('addDebriefBtn'),
+      loadSampleBtn: document.getElementById('loadSampleBtn'),
+      exportBtn: document.getElementById('exportBtn'),
+      saveBtn: document.getElementById('saveBtn'),
+      loadBtn: document.getElementById('loadBtn'),
+      fileInput: document.getElementById('fileInput'),
+      wordBtn: document.getElementById('wordBtn'),
+      importPasteBtn: document.getElementById('importPasteBtn'),
+      importModal: document.getElementById('importModal'),
+      pasteImportText: document.getElementById('pasteImportText'),
+      runPasteImportBtn: document.getElementById('runPasteImportBtn'),
+      cancelPasteImportBtn: document.getElementById('cancelPasteImportBtn'),
+      dayFilterBtn: document.getElementById('dayFilterBtn'),
+      dayFilterMenu: document.getElementById('dayFilterMenu'),
+      courseCode: document.getElementById('courseCode'),
+      instructors: document.getElementById('instructors'),
+      location: document.getElementById('location'),
+      courseDates: document.getElementById('courseDates'),
+      zoomLink: document.getElementById('zoomLink'),
+      timeZone: document.getElementById('timeZone'),
+      classTime: document.getElementById('classTime'),
+      clearBtn: document.getElementById('clearBtn'),
+      scheduleBody: document.getElementById('scheduleBody'),
+      activityCount: document.getElementById('activityCount'),
+      dayCount: document.getElementById('dayCount')
+    };
+
+    const defaultState = {
+      meta: {
+        planName: 'Training Plan'
+      },
+      settings: {
+        dailyCap: '08:30',
+        breakTotal: '00:40',
+        lunchTotal: '00:35',
+        defaultDay: 'Day 1'
+      },
+      daySettings: {},
+      courseInfo: {
+        courseCode: '',
+        instructors: '',
+        location: '',
+        courseDates: '',
+        zoomLink: '',
+        timeZone: '',
+        classTime: ''
+      },
+      filteredDays: [],
+      activities: []
+    };
+
+    let state = loadState();
+
+    function minuteOptionsHtml(selected='00') {
+      let html = '';
+      for (let i = 0; i < 60; i++) {
+        const val = String(i).padStart(2, '0');
+        html += `<option value="${val}" ${val === selected ? 'selected' : ''}>${val}</option>`;
+      }
+      return html;
+    }
+
+    function initializeMinuteSelects() {
+      [
+        els.dailyCapMinutes,
+        els.breakTotalMinutes,
+        els.lunchTotalMinutes,
+        els.addDurationMinutes
+      ].forEach(el => {
+        if (el) el.innerHTML = minuteOptionsHtml('00');
+      });
+    }
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        return saved
+          ? {
+              ...defaultState,
+              ...saved,
+              meta: { ...defaultState.meta, ...(saved.meta || {}) },
+              settings: { ...defaultState.settings, ...(saved.settings || {}) },
+              daySettings: { ...defaultState.daySettings, ...(saved.daySettings || {}) },
+              courseInfo: { ...defaultState.courseInfo, ...(saved.courseInfo || {}) },
+              filteredDays: Array.isArray(saved.filteredDays) ? saved.filteredDays : []
+            }
+          : structuredClone(defaultState);
+      } catch {
+        return structuredClone(defaultState);
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function clamp(num, min, max) {
+      return Math.max(min, Math.min(max, num));
+    }
+
+    function timeToMinutes(value) {
+      if (!value) return 0;
+      const [h, m] = value.split(':').map(Number);
+      return (h || 0) * 60 + (m || 0);
+    }
+
+    function durationToParts(value) {
+      const mins = timeToMinutes(value);
+      return { hours: Math.floor(mins / 60), minutes: mins % 60 };
+    }
+
+    function partsToTime(hours, minutes) {
+      const h = String(clamp(parseInt(hours || 0, 10) || 0, 0, 23)).padStart(2, '0');
+      const m = String(clamp(parseInt(minutes || 0, 10) || 0, 0, 59)).padStart(2, '0');
+      return `${h}:${m}`;
+    }
+
+    function formatDuration(totalMinutes) {
+      const sign = totalMinutes < 0 ? '-' : '';
+      const abs = Math.abs(totalMinutes);
+      const h = Math.floor(abs / 60);
+      const m = abs % 60;
+      if (h === 0 && m === 0) return '0m';
+      if (h === 0) return `${sign}${m}m`;
+      if (m === 0) return `${sign}${h}h`;
+      return `${sign}${h}h ${m}m`;
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function normalizeActivities() {
+      state.activities = state.activities.map((a, idx) => ({
+        id: a.id || `${Date.now()}_${idx}_${Math.random().toString(36).slice(2, 7)}`,
+        day: a.day || 'Day 1',
+        activity: a.activity || 'Untitled activity',
+        duration: a.duration || '00:30'
+      }));
+    }
+
+
+    function getDaySetting(day, key) {
+      const defaults = {
+        breakTotal: state.settings.breakTotal || '00:40',
+        lunchTotal: state.settings.lunchTotal || '00:35'
+      };
+      return (state.daySettings[day] && state.daySettings[day][key]) || defaults[key];
+    }
+
+    function setDaySetting(day, key, value) {
+      if (!state.daySettings[day]) state.daySettings[day] = {};
+      state.daySettings[day][key] = value;
+      render();
+    }
+
+    function getDayGroups() {
+      const groups = new Map();
+      for (const item of state.activities) {
+        if (!groups.has(item.day)) groups.set(item.day, []);
+        groups.get(item.day).push(item);
+      }
+      return [...groups.entries()]
+        .sort((a, b) => a[0].localeCompare(b[0], undefined, { numeric: true, sensitivity: 'base' }))
+        .map(([day, items]) => {
+          const activityTotalMin = items.reduce((sum, item) => sum + timeToMinutes(item.duration), 0);
+          const breakTotal = getDaySetting(day, 'breakTotal');
+          const lunchTotal = getDaySetting(day, 'lunchTotal');
+          const breakMin = timeToMinutes(breakTotal);
+          const lunchMin = timeToMinutes(lunchTotal);
+          const capMin = timeToMinutes(state.settings.dailyCap);
+          const flexMin = Math.max(0, capMin - activityTotalMin - breakMin - lunchMin);
+          const totalMin = activityTotalMin + breakMin + lunchMin + flexMin;
+          const overMin = Math.max(0, totalMin - capMin);
+          const remainingMin = Math.max(0, capMin - totalMin);
+          let status = 'good';
+          if (overMin > 0) status = 'over';
+          else if (remainingMin <= 15) status = 'warning';
+          return {
+            day, items, activityTotalMin,
+            breakTotal, lunchTotal, breakMin, lunchMin,
+            flexMin, totalMin, overMin, remainingMin, status
+          };
+        });
+    }
+
+    function syncSettingsInputs() {
+      const cap = durationToParts(state.settings.dailyCap);
+      els.dailyCapHours.value = cap.hours;
+      els.dailyCapMinutes.value = String(cap.minutes).padStart(2, '0');
+
+      const br = durationToParts(state.settings.breakTotal);
+      els.breakTotalHours.value = br.hours;
+      els.breakTotalMinutes.value = String(br.minutes).padStart(2, '0');
+
+      const lunch = durationToParts(state.settings.lunchTotal);
+      els.lunchTotalHours.value = lunch.hours;
+      els.lunchTotalMinutes.value = String(lunch.minutes).padStart(2, '0');
+
+      els.defaultDay.value = state.settings.defaultDay;
+      els.planName.value = state.meta.planName || 'Training Plan';
+      if (!els.dayInput.value) els.dayInput.value = state.settings.defaultDay;
+      if (!els.addDurationHours.value) els.addDurationHours.value = 0;
+      if (!els.addDurationMinutes.value) els.addDurationMinutes.value = '30';
+    }
+
+    function syncCourseInfoInputs() {
+      const info = state.courseInfo || {};
+      els.courseCode.value = info.courseCode || '';
+      els.instructors.value = info.instructors || '';
+      els.location.value = info.location || '';
+      els.courseDates.value = info.courseDates || '';
+      els.zoomLink.value = info.zoomLink || '';
+      els.timeZone.value = info.timeZone || '';
+      els.classTime.value = info.classTime || '';
+    }
+
+    function updateCourseInfoFromInputs(shouldRender = false) {
+      state.courseInfo = {
+        courseCode: els.courseCode.value.trim(),
+        instructors: els.instructors.value.trim(),
+        location: els.location.value.trim(),
+        courseDates: els.courseDates.value.trim(),
+        zoomLink: els.zoomLink.value.trim(),
+        timeZone: els.timeZone.value.trim(),
+        classTime: els.classTime.value.trim()
+      };
+      if (shouldRender) render();
+      else saveState();
+    }
+
+    function durationEditorHtml(id, value) {
+      const parts = durationToParts(value);
+      return `
+        <div class="duration-editor compact">
+          <input type="number" min="0" max="23" step="1" value="${parts.hours}" onchange="updateDurationPart('${id}','hours',this.value)" />
+          <span class="suffix">hr</span>
+          <select onchange="updateDurationPart('${id}','minutes',this.value)">
+            ${minuteOptionsHtml(String(parts.minutes).padStart(2, '0'))}
+          </select>
+          <span class="suffix">min</span>
+        </div>
+      `;
+    }
+
+    function settingEditorHtml(key, value, day = null) {
+      const parts = durationToParts(value);
+      const inputHandler = day
+        ? `updateDaySettingPart('${day}','${key}','hours',this.value)`
+        : `updateSettingPart('${key}','hours',this.value)`;
+      const selectHandler = day
+        ? `updateDaySettingPart('${day}','${key}','minutes',this.value)`
+        : `updateSettingPart('${key}','minutes',this.value)`;
+
+      return `
+        <div class="duration-editor compact">
+          <input type="number" min="0" max="23" step="1" value="${parts.hours}" onchange="${inputHandler}" />
+          <span class="suffix">hr</span>
+          <select onchange="${selectHandler}">
+            ${minuteOptionsHtml(String(parts.minutes).padStart(2, '0'))}
+          </select>
+          <span class="suffix">min</span>
+        </div>
+      `;
+    }
+
+
+    function getAllDayLabels() {
+      return [...new Set(state.activities.map(item => item.day || 'Day 1'))]
+        .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+    }
+
+    function getSelectedDayLabels() {
+      const allDays = getAllDayLabels();
+      const selected = Array.isArray(state.filteredDays)
+        ? state.filteredDays.filter(day => allDays.includes(day))
+        : [];
+      return selected.length ? selected : allDays;
+    }
+
+    function updateDayFilterButton() {
+      const allDays = getAllDayLabels();
+      const selected = getSelectedDayLabels();
+
+      if (!els.dayFilterBtn) return;
+
+      if (!allDays.length || selected.length === allDays.length) {
+        els.dayFilterBtn.textContent = 'Days: All';
+      } else if (selected.length === 1) {
+        els.dayFilterBtn.textContent = `Days: ${selected[0]}`;
+      } else {
+        els.dayFilterBtn.textContent = `Days: ${selected.length} selected`;
+      }
+    }
+
+    function renderDayFilterMenu() {
+      if (!els.dayFilterMenu) return;
+
+      const allDays = getAllDayLabels();
+      const selected = new Set(getSelectedDayLabels());
+
+      if (!allDays.length) {
+        els.dayFilterMenu.innerHTML = '<div class="tiny" style="padding:10px;">No days available yet.</div>';
+        updateDayFilterButton();
+        return;
+      }
+
+      let menuHtml = `
+        <div class="day-filter-actions">
+          <button class="ghost mini-btn" type="button" onclick="selectAllDays()">All</button>
+          <button class="ghost mini-btn" type="button" onclick="selectNoDays()">None</button>
+        </div>
+      `;
+
+      for (const day of allDays) {
+        const checked = selected.has(day) ? 'checked' : '';
+        menuHtml += `
+          <label class="day-filter-row">
+            <input type="checkbox" ${checked} onchange="toggleDayFilter(this.dataset.day, this.checked)" data-day="${escapeHtml(day)}" />
+            <span>${escapeHtml(day)}</span>
+          </label>
+        `;
+      }
+
+      els.dayFilterMenu.innerHTML = menuHtml;
+      updateDayFilterButton();
+    }
+
+    window.toggleDayFilter = function(day, checked) {
+      const allDays = getAllDayLabels();
+      let selected = getSelectedDayLabels();
+
+      if (checked && !selected.includes(day)) selected.push(day);
+      if (!checked) selected = selected.filter(d => d !== day);
+
+      state.filteredDays = selected.length === allDays.length ? [] : selected;
+      render();
+    };
+
+    window.selectAllDays = function() {
+      state.filteredDays = [];
+      render();
+    };
+
+    window.selectNoDays = function() {
+      state.filteredDays = ['__NONE__'];
+      render();
+    };
+
+
+    function render() {
+      normalizeActivities();
+      syncSettingsInputs();
+      syncCourseInfoInputs();
+
+      const allGroups = getDayGroups();
+      const selectedDays = getSelectedDayLabels();
+      const selectedSet = new Set(selectedDays);
+      const groups = allGroups.filter(group => selectedSet.has(group.day));
+
+      els.activityCount.textContent = String(groups.reduce((sum, group) => sum + group.items.length, 0));
+      els.dayCount.textContent = String(groups.length);
+      renderDayFilterMenu();
+
+      if (!groups.length) {
+        els.scheduleBody.innerHTML = `<tr><td colspan="7" class="empty">No activities match the current day filter.</td></tr>`;
+        saveState();
+        return;
+      }
+
+      let html = '';
+      for (const group of groups) {
+        group.items.forEach((item, index) => {
+          html += `<tr>
+            <td>
+  <input class="text-input" type="text" value="${escapeHtml(item.day || group.day || 'Day 1')}" 
+    oninput="updateActivityField('${item.id}','day',this.value, false)"
+    onchange="updateActivityField('${item.id}','day',this.value)" />
+</td>
+            <td><textarea class="activity-textarea"
+oninput="autoGrow(this); updateActivityField('${item.id}','activity',this.value, false)"
+onchange="updateActivityField('${item.id}','activity',this.value)">${escapeHtml(item.activity)}</textarea></td>
+            <td>${durationEditorHtml(item.id, item.duration)}</td>`;
+
+          if (index === 0) {
+            html += `
+              <td class="total-col" rowspan="${group.items.length}">
+                <div class="big">${formatDuration(group.activityTotalMin)}</div>
+              </td>
+              <td class="flex-col" rowspan="${group.items.length}">
+                <div class="flex-box">
+                  <div class="flex-label">Flex Time</div>
+                  <div class="big">${formatDuration(group.flexMin)}</div>
+                </div>
+                <div class="flex-box">
+                  <div class="flex-label">Break</div>
+                  ${settingEditorHtml('breakTotal', group.breakTotal, group.day)}
+                </div>
+                <div class="flex-box">
+                  <div class="flex-label">Lunch</div>
+                  ${settingEditorHtml('lunchTotal', group.lunchTotal, group.day)}
+                </div>
+              </td>
+              <td class="day-total-col ${group.status}" rowspan="${group.items.length}">
+                <div class="big">${formatDuration(group.totalMin)}</div>
+                <div class="muted">Cap: ${formatDuration(timeToMinutes(state.settings.dailyCap))}</div>
+                ${group.overMin ? `<div class="muted" style="color:#b91c1c;font-weight:700;">Over by ${formatDuration(group.overMin)}</div>` : ''}
+              </td>`;
+          }
+
+          html += `
+            <td>
+              <div class="actions">
+                <button class="pill-btn delete" onclick="deleteActivity('${item.id}')">Delete</button>
+              </div>
+            </td>
+          </tr>`;
+        });
+      }
+
+      els.scheduleBody.innerHTML = html;
+      initializeAutoGrow();
+      saveState();
+    }
+
+    function addActivity(day, activity, duration) {
+      state.activities.push({
+        id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        day,
+        activity,
+        duration
+      });
+      
+render();
+    }
+
+    function updateSettingsFromInputs() {
+      state.settings.dailyCap = partsToTime(els.dailyCapHours.value, els.dailyCapMinutes.value);
+      state.settings.breakTotal = partsToTime(els.breakTotalHours.value, els.breakTotalMinutes.value);
+      state.settings.lunchTotal = partsToTime(els.lunchTotalHours.value, els.lunchTotalMinutes.value);
+      state.settings.defaultDay = els.defaultDay.value.trim() || 'Day 1';
+      state.meta.planName = els.planName.value.trim() || 'Training Plan';
+      updateCourseInfoFromInputs(false);
+      render();
+    }
+
+    window.updateSettingPart = function(key, part, value) {
+      const current = durationToParts(state.settings[key]);
+      const hours = part === 'hours' ? value : current.hours;
+      const minutes = part === 'minutes' ? value : current.minutes;
+      state.settings[key] = partsToTime(hours, minutes);
+      render();
+    };
+
+    window.updateDaySettingPart = function(day, key, part, value) {
+      const current = durationToParts(getDaySetting(day, key));
+      const hours = part === 'hours' ? value : current.hours;
+      const minutes = part === 'minutes' ? value : current.minutes;
+      setDaySetting(day, key, partsToTime(hours, minutes));
+    };
+
+    window.updateDurationPart = function(id, part, value) {
+      const item = state.activities.find(a => a.id === id);
+      if (!item) return;
+      const current = durationToParts(item.duration);
+      const hours = part === 'hours' ? value : current.hours;
+      const minutes = part === 'minutes' ? value : current.minutes;
+      item.duration = partsToTime(hours, minutes);
+      render();
+    };
+
+    window.updateActivityField = function(id, field, value, shouldRender = true) {
+      const item = state.activities.find(a => a.id === id);
+      if (!item) return;
+      const nextValue = String(value);
+      if (field === 'day') {
+        item[field] = nextValue.trim() || item[field] || 'Day 1';
+      } else {
+        item[field] = nextValue;
+      }
+      if (shouldRender) render();
+      else saveState();
+    };
+
+    window.deleteActivity = function(id) {
+      state.activities = state.activities.filter(item => item.id !== id);
+      render();
+    };
+
+
+    function openPasteImport() {
+      els.pasteImportText.value = '';
+      els.importModal.style.display = 'flex';
+      setTimeout(() => els.pasteImportText.focus(), 50);
+    }
+
+    function closePasteImport() {
+      els.importModal.style.display = 'none';
+      els.pasteImportText.value = '';
+    }
+
+    function normalizeImportText(text) {
+      return String(text || '').replace(/\r/g, '').split('\n').map(line => line.trim()).filter(Boolean);
+    }
+
+    function parseDurationFromText(text) {
+      const raw = String(text || '').trim().toLowerCase();
+      if (!raw) return null;
+      let match = raw.match(/(\d+)\s*h(?:r|rs|our|ours)?\s*(\d+)?\s*m?/i);
+      if (match) return partsToTime(match[1], match[2] || 0);
+      match = raw.match(/^(\d+)\s*:\s*(\d{1,2})$/);
+      if (match) return partsToTime(match[1], match[2]);
+      match = raw.match(/^(\d+)\s*m(?:in|ins|inutes)?$/i);
+      if (match) return partsToTime(0, match[1]);
+      match = raw.match(/^(\d+)\s*h(?:r|rs|our|ours)?$/i);
+      if (match) return partsToTime(match[1], 0);
+      return null;
+    }
+
+    function findDayInText(text) {
+      const match = String(text || '').match(/\bDay\s*\d+\b/i);
+      return match ? match[0].replace(/\s+/, ' ') : '';
+    }
+
+    function setImportedDaySetting(day, key, durationText) {
+      const parsed = parseDurationFromText(durationText);
+      if (!parsed || !day) return;
+      if (!state.daySettings[day]) state.daySettings[day] = {};
+      state.daySettings[day][key] = parsed;
+    }
+
+    function interpretScheduleRow(cols, fallbackDay) {
+      let day = '';
+      let activity = '';
+      let duration = '';
+
+      if (/^week\b/i.test(cols[0] || '') && /^day\b/i.test(cols[1] || '')) {
+        day = cols[1];
+        activity = cols[2] || '';
+        duration = parseDurationFromText(cols[3] || '');
+      } else if (/^day\s*\d+/i.test(cols[0] || '')) {
+        day = cols[0];
+        activity = cols[1] || '';
+        duration = parseDurationFromText(cols[2] || cols[3] || '');
+      } else if (fallbackDay) {
+        day = fallbackDay;
+        activity = cols[0] || '';
+        duration = parseDurationFromText(cols[1] || cols[2] || '');
+      }
+
+      if (!day || !activity || !duration) return null;
+      if (/^(flex|break|lunch|total|activity duration)$/i.test(activity)) return null;
+      return { day, activity, duration };
+    }
+
+    function importPastedSchedule() {
+      const lines = normalizeImportText(els.pasteImportText.value);
+      if (!lines.length) {
+        alert('Paste schedule rows first.');
+        return;
+      }
+
+      const importedActivities = [];
+      const importedDaySettings = {};
+      const importedCourseInfo = { ...(state.courseInfo || {}) };
+      let currentDay = '';
+
+      for (const line of lines) {
+        const cols = line.includes('\t')
+          ? line.split('\t').map(c => c.trim()).filter(c => c !== '')
+          : line.split(/\s{2,}/).map(c => c.trim()).filter(c => c !== '');
+
+        if (!cols.length) continue;
+        const joined = cols.join(' ').trim();
+        const lower = joined.toLowerCase();
+
+        const labelMap = [
+          ['course code', 'courseCode'],
+          ['instructors', 'instructors'],
+          ['location', 'location'],
+          ['course dates', 'courseDates'],
+          ['zoom link', 'zoomLink'],
+          ['time zone', 'timeZone'],
+          ['class time', 'classTime']
+        ];
+
+        let matchedInfo = false;
+        for (const [label, key] of labelMap) {
+          if (lower.startsWith(label)) {
+            importedCourseInfo[key] = cols.length > 1 ? cols.slice(1).join(' ') : joined.replace(new RegExp('^' + label, 'i'), '').trim();
+            matchedInfo = true;
+            break;
+          }
+        }
+        if (matchedInfo) continue;
+
+        if (/activity/i.test(joined) && /duration/i.test(joined)) continue;
+
+        if (lower.includes('break')) {
+          const day = currentDay || findDayInText(joined);
+          if (day) {
+            if (!importedDaySettings[day]) importedDaySettings[day] = {};
+            importedDaySettings[day].breakTotal = parseDurationFromText(joined) || state.settings.breakTotal;
+          }
+          continue;
+        }
+
+        if (lower.includes('lunch')) {
+          const day = currentDay || findDayInText(joined);
+          if (day) {
+            if (!importedDaySettings[day]) importedDaySettings[day] = {};
+            importedDaySettings[day].lunchTotal = parseDurationFromText(joined) || state.settings.lunchTotal;
+          }
+          continue;
+        }
+
+        const row = interpretScheduleRow(cols, currentDay);
+        if (row) {
+          currentDay = row.day;
+          importedActivities.push(row);
+        }
+      }
+
+      if (!importedActivities.length) {
+        alert('I could not detect schedule activity rows. Try copying directly from the table so the pasted data includes columns/tabs.');
+        return;
+      }
+
+      const replaceExisting = confirm(`Import ${importedActivities.length} activities?\n\nOK = replace current schedule\nCancel = append to current schedule`);
+      if (replaceExisting) {
+        state.activities = [];
+        state.daySettings = {};
+      }
+
+      state.courseInfo = { ...(state.courseInfo || {}), ...importedCourseInfo };
+      state.daySettings = { ...(state.daySettings || {}), ...importedDaySettings };
+      state.activities.push(...importedActivities.map(item => ({
+        id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        day: item.day,
+        activity: item.activity,
+        duration: item.duration
+      })));
+
+      closePasteImport();
+      render();
+      alert(`Imported ${importedActivities.length} activities.`);
+    }
+
+
+    function exportData() {
+      const name = (els.planName.value || state.meta.planName || 'Training Plan').trim() || 'Training Plan';
+      state.meta.planName = name;
+      updateCourseInfoFromInputs(false);
+
+      const payload = {
+        name,
+        savedAt: new Date().toISOString(),
+        state
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${name.replace(/[^a-z0-9]+/gi, '_').replace(/^_+|_+$/g, '') || 'Training_Plan'}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      render();
+    }
+
+    function loadFromFile(file) {
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          const nextState = data.state ? data.state : data;
+
+          state = {
+            ...structuredClone(defaultState),
+            ...nextState,
+            meta: { ...defaultState.meta, ...((nextState && nextState.meta) || {}) },
+            settings: { ...defaultState.settings, ...((nextState && nextState.settings) || {}) },
+            daySettings: { ...defaultState.daySettings, ...((nextState && nextState.daySettings) || {}) },
+            courseInfo: { ...defaultState.courseInfo, ...((nextState && nextState.courseInfo) || {}) },
+            activities: Array.isArray(nextState.activities) ? nextState.activities : []
+          };
+
+          if (data.name) state.meta.planName = data.name;
+
+          els.dayInput.value = '';
+          render();
+          alert('Plan loaded successfully.');
+        } catch (err) {
+          alert('That file could not be loaded. Please choose a valid planner JSON file.');
+        } finally {
+          els.fileInput.value = '';
+        }
+      };
+
+      reader.readAsText(file);
+    }
+
+    function loadSampleData() {
+      state.activities = [
+        { id: 'a1', day: 'Day 3', activity: 'Revised Amount Due', duration: '00:20' },
+        { id: 'a2', day: 'Day 3', activity: 'Change Due Date', duration: '00:30' },
+        { id: 'a3', day: 'Day 3', activity: 'Automatic Payment Plan', duration: '01:00' },
+        { id: 'a4', day: 'Day 3', activity: 'Debrief', duration: '00:45' },
+        { id: 'a5', day: 'Day 3', activity: 'Short and Double Billing', duration: '00:30' },
+        { id: 'a6', day: 'Day 3', activity: 'Non-Payment Cancellation (NPC)', duration: '00:30' },
+        { id: 'a7', day: 'Day 3', activity: 'Debrief', duration: '01:00' },
+        { id: 'a8', day: 'Day 3', activity: 'Special Payment Arrangements', duration: '01:00' },
+        { id: 'a9', day: 'Day 4', activity: 'Debrief', duration: '00:30' },
+        { id: 'a10', day: 'Day 4', activity: 'Know Before You Go', duration: '00:15' },
+        { id: 'a11', day: 'Day 4', activity: 'PRACTICE - Zenarate (Smith) Guided', duration: '00:10' },
+        { id: 'a12', day: 'Day 4', activity: 'PRACTICE - Zenarate (Falcon) Guided', duration: '00:10' },
+        { id: 'a13', day: 'Day 4', activity: 'PRACTICE - Zenarate (Staumbaugh) Guided', duration: '00:10' },
+        { id: 'a14', day: 'Day 4', activity: 'Debrief', duration: '01:00' },
+        { id: 'a15', day: 'Day 4', activity: 'Uncollected Charges', duration: '00:45' },
+        { id: 'a16', day: 'Day 4', activity: 'Fees', duration: '02:00' },
+        { id: 'a17', day: 'Day 4', activity: 'Returned Payments', duration: '00:30' },
+        { id: 'a18', day: 'Day 4', activity: 'Debrief', duration: '00:20' },
+        { id: 'a19', day: 'Day 4', activity: 'Refunds and Transfers', duration: '01:00' },
+        { id: 'a20', day: 'Day 5', activity: 'Earned Premium Location', duration: '00:20' },
+        { id: 'a21', day: 'Day 5', activity: 'Debrief', duration: '00:35' },
+        { id: 'a22', day: 'Day 5', activity: 'SA/AD Systems Training', duration: '00:15' },
+        { id: 'a23', day: 'Day 5', activity: "Subscriber's Accounts Auto System", duration: '00:15' },
+        { id: 'a24', day: 'Day 5', activity: "Subscriber's Agreement", duration: '00:20' },
+        { id: 'a25', day: 'Day 5', activity: 'Debrief', duration: '00:20' },
+        { id: 'a26', day: 'Day 5', activity: 'Billing Content Review', duration: '01:00' },
+        { id: 'a27', day: 'Day 5', activity: 'Progress Check/Debrief', duration: '01:15' },
+        { id: 'a28', day: 'Day 5', activity: 'Remediation', duration: '01:00' },
+        { id: 'a29', day: 'Day 5', activity: 'Debrief', duration: '00:30' },
+        { id: 'a30', day: 'Day 5', activity: 'Intro to Skills Validation', duration: '00:30' }
+      ];
+      state.daySettings = {};
+      state.courseInfo = {
+        courseCode: 'SLS 101',
+        instructors: '',
+        location: '',
+        courseDates: '',
+        zoomLink: '',
+        timeZone: '',
+        classTime: ''
+      };
+      state.meta.planName = 'Sample Training Plan';
+      state.settings.dailyCap = '08:30';
+      state.settings.breakTotal = '00:40';
+      state.settings.lunchTotal = '00:35';
+      state.settings.defaultDay = 'Day 6';
+      els.dayInput.value = 'Day 6';
+      els.addDurationHours.value = 0;
+      els.addDurationMinutes.value = '30';
+      render();
+    }
+
+    function clearAll() {
+      if (!confirm('Clear all activities and reset the planner?')) return;
+      state = structuredClone(defaultState);
+      localStorage.removeItem(STORAGE_KEY);
+      els.dayInput.value = '';
+      els.planName.value = 'Training Plan';
+      render();
+    }
+
+
+    function courseInfoTableHtml() {
+      const info = state.courseInfo || {};
+      return `
+  <table class="course-info-table">
+    <tbody>
+      <tr><td class="info-label">Course Code</td><td>${escapeHtml(info.courseCode || '')}</td></tr>
+      <tr><td class="info-label">Instructors</td><td>${escapeHtml(info.instructors || '')}</td></tr>
+      <tr><td class="info-label">Location</td><td>${escapeHtml(info.location || '')}</td></tr>
+      <tr><td class="info-label">Course Dates</td><td>${escapeHtml(info.courseDates || '')}</td></tr>
+      <tr><td class="info-label">Zoom Link</td><td>${escapeHtml(info.zoomLink || '')}</td></tr>
+      <tr><td class="info-label">Time Zone</td><td>${escapeHtml(info.timeZone || '')}</td></tr>
+      <tr><td class="info-label">Class Time</td><td>${escapeHtml(info.classTime || '')}</td></tr>
+    </tbody>
+  </table>`;
+    }
+
+    function buildPrintTableHtml() {
+      const planName = escapeHtml((els.planName.value || state.meta.planName || 'Training Schedule').trim() || 'Training Schedule');
+      const groups = getDayGroups();
+      let rows = '';
+
+      if (!groups.length) {
+        rows = '<tr><td colspan="6" style="padding:16px;text-align:center;color:#6b7280;">No activities loaded.</td></tr>';
+      } else {
+        for (const group of groups) {
+          for (let i = 0; i < group.items.length; i++) {
+            const item = group.items[i];
+            rows += '<tr>';
+            rows += `<td>${escapeHtml(item.day || group.day || 'Day 1')}</td>`;
+            rows += `<td>${escapeHtml(item.activity || '')}</td>`;
+            rows += `<td>${escapeHtml(formatDuration(timeToMinutes(item.duration || '00:00')))}</td>`;
+
+            if (i === 0) {
+              rows += `<td rowspan="${group.items.length}"><strong>${escapeHtml(formatDuration(group.activityTotalMin))}</strong></td>`;
+              rows += `<td rowspan="${group.items.length}">
+                        <div><strong>Flex:</strong> ${escapeHtml(formatDuration(group.flexMin))}</div>
+                        <div style="margin-top:8px;"><strong>Break:</strong> ${escapeHtml(formatDuration(group.breakMin))}</div>
+                        <div style="margin-top:8px;"><strong>Lunch:</strong> ${escapeHtml(formatDuration(group.lunchMin))}</div>
+                      </td>`;
+              rows += `<td rowspan="${group.items.length}">
+                        <strong style="color:${group.status === 'over' ? '#b91c1c' : group.status === 'warning' ? '#b45309' : '#0f766e'};">${escapeHtml(formatDuration(group.totalMin))}</strong>
+                        <div style="font-size:12px;color:#6b7280;margin-top:6px;">Cap: ${escapeHtml(formatDuration(timeToMinutes(state.settings.dailyCap)))}</div>
+                        ${group.overMin ? `<div style="font-size:12px;color:#b91c1c;font-weight:700;margin-top:4px;">Over by ${escapeHtml(formatDuration(group.overMin))}</div>` : ''}
+                      </td>`;
+            }
+
+            rows += '</tr>';
+          }
+        }
+      }
+
+      return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>${planName}</title>
+<style>
+  body { font-family: Arial, Helvetica, sans-serif; color: #111827; margin: 24px; }
+  h1 { margin: 0 0 8px; font-size: 24px; }
+  .meta { margin: 0 0 18px; color: #6b7280; font-size: 13px; }
+  table { width: 100%; border-collapse: collapse; table-layout: auto; 
+    margin-left:auto !important;
+    margin-right:auto !important;
+    }
+  th, td { border: 1px solid #d1d5db; padding: 10px; vertical-align: top; font-size: 13px; word-wrap: break-word; }
+  table.course-info-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    margin: 0 0 8px 0;
+  }
+  table.course-info-table td {
+    border: 1px solid #d1d5db;
+    padding: 6px 8px;
+    font-size: 12px;
+    vertical-align: middle;
+  }
+  table.course-info-table .info-label {
+    width: 18%;
+    font-weight: 700;
+    background: #ffffff;
+  }
+  th { background: #f3f4f6; text-align: left; }
+  th:nth-child(1), td:nth-child(1) { width: 12%; }
+  th:nth-child(2), td:nth-child(2) { width: 28%; }
+  th:nth-child(3), td:nth-child(3) { width: 12%; }
+  th:nth-child(4), td:nth-child(4) { width: 16%; }
+  th:nth-child(5), td:nth-child(5) { width: 18%; }
+  th:nth-child(6), td:nth-child(6) { width: 14%; }
+  @media print { body { margin: 12px; } tr, td, th { page-break-inside: avoid; } }
+</style>
+</head>
+<body>
+  <h1>${planName}</h1>
+  <div class="meta">Snapshot of current schedule</div>
+  ${courseInfoTableHtml()}
+<div style="text-align:center;"><table align="center" style="margin-left:auto;margin-right:auto;">
+    <thead>
+      <tr>
+        <th>Day</th>
+        <th>Activity</th>
+        <th>Activity Duration</th>
+        <th>Activity Duration Total</th>
+        <th>Flex, Break & Lunch Duration</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+        </table>
+      </td>
+    </tr>
+  </table>
+</div>
+</body>
+</html>`;
+    }
+
+
+    function buildWordDocumentHtml() {
+      const planName = escapeHtml((els.planName.value || state.meta.planName || 'Training Schedule').trim() || 'Training Schedule');
+      const groups = getDayGroups();
+      let rows = '';
+
+      if (!groups.length) {
+        rows = '<tr><td colspan="6">No activities loaded.</td></tr>';
+      } else {
+        for (let groupIndex = 0; groupIndex < groups.length; groupIndex++) {
+          const group = groups[groupIndex];
+          const rowBg = (groupIndex % 2 === 0) ? '#ffffff' : '#f3f4f6';
+
+          for (let i = 0; i < group.items.length; i++) {
+            const item = group.items[i];
+
+            rows += `<tr style="background:${rowBg};">`;
+            rows += `<td>${escapeHtml(item.day || group.day || 'Day 1')}</td>`;
+            rows += `<td>${escapeHtml(item.activity || '')}</td>`;
+            rows += `<td>${escapeHtml(formatDuration(timeToMinutes(item.duration || '00:00')))}</td>`;
+
+            if (i === 0) {
+              rows += `<td><strong>${escapeHtml(formatDuration(group.activityTotalMin))}</strong></td>`;
+              rows += `<td>
+                        <p style="margin:0 0 1pt;"><strong>Flex:</strong> ${escapeHtml(formatDuration(group.flexMin))}</p>
+                        <p style="margin:0 0 1pt;"><strong>Break:</strong> ${escapeHtml(formatDuration(group.breakMin))}</p>
+                        <p style="margin:0;"><strong>Lunch:</strong> ${escapeHtml(formatDuration(group.lunchMin))}</p>
+                      </td>`;
+              rows += `<td>
+                        <strong>${escapeHtml(formatDuration(group.totalMin))}</strong>
+                        <p style="font-size:6.5pt;color:#6b7280;margin:1pt 0 0;">Cap: ${escapeHtml(formatDuration(timeToMinutes(state.settings.dailyCap)))}</p>
+                        ${group.overMin ? `<p style="font-size:6.5pt;color:#b91c1c;font-weight:bold;margin:1pt 0 0;">Over by ${escapeHtml(formatDuration(group.overMin))}</p>` : ''}
+                      </td>`;
+            } else {
+              rows += '<td></td><td></td><td></td>';
+            }
+
+            rows += '</tr>';
+          }
+        }
+      }
+
+      return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>${planName}</title>
+<style>
+  @page WordSection1 { size: 11in 8.5in; margin: 0.15in; }
+  div.WordSection1 { page: WordSection1; }
+  body { font-family: Arial, Helvetica, sans-serif; color: #111827; margin: 0; }
+  h1 {
+    font-size: 16pt;
+    margin: 0;
+    text-align:center;
+    color:#111827;
+    font-weight:700;
+  }
+  p.meta {
+    color: #6b7280;
+    font-size: 7pt;
+    margin: 2pt 0 3pt;
+    text-align:center;
+  }
+  .word-header-bar{
+    height:5px;
+    background:#c96a1b;
+    margin-bottom:4pt;
+  }
+  table.schedule-table {
+    width: 70%;
+    max-width: 7.0in;
+    margin-top: 0;
+    margin-left: auto;
+    margin-right: auto;
+    border-collapse: collapse;
+    table-layout: fixed;
+    page-break-before: avoid;
+  }
+  table.outer-wrapper {
+    width: 100%;
+    border: none;
+    margin: 0;
+    padding: 0;
+    table-layout: fixed;
+  }
+  table.outer-wrapper td {
+    border: none;
+    padding: 0;
+  }
+  .schedule-wrapper {
+    margin-top: 0;
+    padding-top: 0;
+    page-break-before: avoid;
+  }
+  thead { display: table-header-group; }
+  tr { page-break-inside: auto; }
+  table.schedule-table th,
+  table.schedule-table td {
+    border: 1px solid #999999;
+    padding: 1pt;
+    vertical-align: top;
+    font-size: 6.5pt;
+    line-height: 1.05;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  table.schedule-table th {
+    background: #c96a1b;
+    color: #000;
+    font-weight: 700;
+    text-align: center;
+  }
+  table.course-info-table {
+    width: 70%;
+    max-width: 7.0in;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-bottom: 2pt;
+    border-collapse: collapse;
+    table-layout: fixed;
+    page-break-after: avoid;
+  }
+  table.course-info-table td {
+    border: 1px solid #999999;
+    padding: 1pt 4pt;
+    font-size: 6.5pt;
+    line-height: 1.0;
+    vertical-align: middle;
+  }
+  table.course-info-table .info-label {
+    width: 18%;
+    font-weight: 700;
+    background: #ffffff;
+  }
+  table.course-info-wrapper {
+    width: 100%;
+    border: none;
+    margin: 0 0 2pt 0;
+    padding: 0;
+    table-layout: fixed;
+  }
+  table.course-info-wrapper td {
+    border: none;
+    padding: 0;
+  }
+
+  table.course-info-table {
+    border-collapse: collapse !important;
+    border: 1px solid #999999 !important;
+  }
+
+  table.course-info-table td {
+    border: 1px solid #999999 !important;
+  }
+</style>
+</head>
+<body>
+<div class="WordSection1">
+  <div class="word-header-bar"></div>
+  <h1>${planName}</h1>
+  <p class="meta">Training schedule snapshot</p>
+
+  <table class="course-info-wrapper" width="100%" border="0" cellspacing="0" cellpadding="0" style="border:none;width:100%;margin:0;padding:0;">
+    <tr>
+      <td align="center" style="border:none;padding:0;text-align:center;">
+        ${courseInfoTableHtml()}
+      </td>
+    </tr>
+  </table>
+  <table class="outer-wrapper schedule-wrapper" width="100%" border="0" cellspacing="0" cellpadding="0" style="border:none;width:100%;margin-top:0;padding-top:0;">
+    <tr>
+      <td align="center" style="border:none;padding:0;text-align:center;">
+        <table class="schedule-table" align="center" width="70%" style="margin-left:auto;margin-right:auto;">
+          <thead>
+      <tr>
+        <th style="width:5%;">Day</th>
+        <th style="width:42%;">Activity</th>
+        <th style="width:10%;">Activity Duration<br>(entry format)</th>
+        <th style="width:9%;">Activity Duration<br>Total</th>
+        <th style="width:18%;">Flex, Break &amp; Lunch Duration</th>
+        <th style="width:16%;">Total</th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+        </table>
+      </td>
+    </tr>
+  </table>
+</div>
+</body>
+</html>`;
+    }
+
+    function saveWordDocument() {
+      const name = (els.planName.value || state.meta.planName || 'Training Schedule').trim() || 'Training Schedule';
+      const wordHtml = buildWordDocumentHtml();
+      const blob = new Blob(['\ufeff', wordHtml], { type: 'application/msword' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${name.replace(/[^a-z0-9]+/gi, '_').replace(/^_+|_+$/g, '') || 'Training_Schedule'}.doc`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function savePdfSnapshot() {
+      const printWindow = window.open('', '_blank', 'width=1200,height=900');
+      if (!printWindow) {
+        alert('Please allow pop-ups for this page so the PDF snapshot can open.');
+        return;
+      }
+
+      const snapshotHtml = buildPrintTableHtml();
+      printWindow.document.open();
+      printWindow.document.write(snapshotHtml);
+      printWindow.document.close();
+
+      printWindow.onload = () => {
+        printWindow.focus();
+        printWindow.print();
+      };
+    }
+
+    els.addBtn.addEventListener('click', () => {
+      const day = els.dayInput.value.trim() || state.settings.defaultDay || 'Day 1';
+      const activity = els.activityInput.value.trim();
+      const duration = partsToTime(els.addDurationHours.value, els.addDurationMinutes.value);
+      if (!activity) {
+        alert('Please enter an activity name.');
+        return;
+      }
+      addActivity(day, activity, duration);
+      els.activityInput.value = '';
+      els.addDurationHours.value = 0;
+      els.addDurationMinutes.value = '30';
+      els.dayInput.value = day;
+      els.activityInput.focus();
+    });
+
+    els.addDebriefBtn.addEventListener('click', () => {
+      const day = els.dayInput.value.trim() || state.settings.defaultDay || 'Day 1';
+      addActivity(day, 'Debrief', '00:30');
+    });
+
+    [
+      els.dailyCapHours, els.dailyCapMinutes,
+      els.breakTotalHours, els.breakTotalMinutes,
+      els.lunchTotalHours, els.lunchTotalMinutes,
+      els.defaultDay, els.planName
+    ].forEach(el => el.addEventListener('change', updateSettingsFromInputs));
+
+    [
+      els.courseCode, els.instructors, els.location, els.courseDates,
+      els.zoomLink, els.timeZone, els.classTime
+    ].forEach(el => {
+      el.addEventListener('input', () => updateCourseInfoFromInputs(false));
+      el.addEventListener('change', () => updateCourseInfoFromInputs(false));
+    });
+
+    els.loadSampleBtn.addEventListener('click', loadSampleData);
+    els.exportBtn.addEventListener('click', exportData);
+    els.saveBtn.addEventListener('click', exportData);
+    els.loadBtn.addEventListener('click', () => els.fileInput.click());
+    els.fileInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) loadFromFile(file);
+    });
+    els.clearBtn.addEventListener('click', clearAll);
+    els.pdfBtn = document.getElementById('pdfBtn');
+    els.pdfBtn.addEventListener('click', savePdfSnapshot);
+    els.wordBtn.addEventListener('click', saveWordDocument);
+    els.importPasteBtn.addEventListener('click', openPasteImport);
+    els.cancelPasteImportBtn.addEventListener('click', closePasteImport);
+    els.runPasteImportBtn.addEventListener('click', importPastedSchedule);
+    els.importModal.addEventListener('click', (e) => {
+      if (e.target === els.importModal) closePasteImport();
+    });
+
+    els.dayFilterBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      els.dayFilterMenu.style.display = els.dayFilterMenu.style.display === 'none' ? 'block' : 'none';
+    });
+
+    document.addEventListener('click', (e) => {
+      if (els.dayFilterMenu && !els.dayFilterMenu.contains(e.target) && e.target !== els.dayFilterBtn) {
+        els.dayFilterMenu.style.display = 'none';
+      }
+    });
+
+
+    window.autoGrow = function(el) {
+      el.style.height = 'auto';
+      el.style.height = (el.scrollHeight) + 'px';
+    };
+
+    function initializeAutoGrow() {
+      document.querySelectorAll('.activity-textarea').forEach(el => {
+        autoGrow(el);
+      });
+    }
+
+    initializeMinuteSelects();
+    render();
+  </script>
+</body>
+</html>
