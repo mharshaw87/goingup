@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PolicyCenter HazardHub Playground</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Palette sampled from the demo video and reference screenshot */
+:root{
+  color-scheme:light;
+  --nav:#1d2637; --nav-sec:#394b6c; --nav-tools:#31405a; --nav-toolitems:#080b12; --nav-line:#05070c;
+  --nav-text:#d9dee7; --nav-sectext:#9db2cf; --nav-dim:#5f6674;
+  --top:#44577d; --top-on:#566f9e; --top-text:#e3e9f3; --actions:#407ba1;
+  --btn:#407ba1; --btn-h:#336a8f;
+  --page:#f1f2f6; --card:#ffffff; --line:#dfe2e7; --rule:#e2e4e8;
+  --text:#3c3f45; --label:#6f727a; --muted:#8b8e95; --title:#55585e;
+  --link:#5d86b8; --sel-text:#2f6c98; --sel-border:#5d93bb; --field-border:#c8ced3;
+  --rowsel:#dcf0fa; --req:#dca26a;
+  --high:#d9483b; --med:#f2b52c; --low:#5fae3e; --info:#a3abb3; --hint:#f5b400;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+body{margin:0;height:100%;font-family:"Source Sans 3","Source Sans Pro","Segoe UI",Arial,sans-serif;font-size:13px;color:var(--text);background:var(--page)}
+button{font:inherit;cursor:pointer}
+a{color:var(--link);text-decoration:none;cursor:pointer}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid #5fb3e6;outline-offset:1px}
+u{text-underline-offset:2px}
+
+.app{display:grid;grid-template-columns:180px 1fr;grid-template-rows:auto 1fr;height:100%;overflow:hidden}
+.app.collapsed{grid-template-columns:0 1fr}
+.logo{background:var(--nav);color:#fff;display:flex;align-items:center;gap:7px;padding:0 12px;font-size:17px;white-space:nowrap;overflow:hidden;height:40px}
+.logo sup{font-size:8px;vertical-align:8px}
+.topbar{background:var(--top);display:flex;align-items:stretch;padding:0 6px 0 16px;min-width:0;height:40px;align-self:start}
+.menus{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+.menus::-webkit-scrollbar{display:none}
+.tm{display:flex;align-items:center;color:var(--top-text);white-space:nowrap;padding:0 2px}
+.tm.active{background:var(--top-on)}
+.tm > button{background:none;border:0;color:inherit;padding:0 7px;height:100%}
+.tm > button:hover{background:rgba(255,255,255,.08)}
+.tm .car{display:flex;align-items:center;gap:6px;padding:0 6px 0 0}
+.tm .car::before{content:"";width:1px;height:18px;background:rgba(255,255,255,.55)}
+.tm .car svg{margin-left:2px}
+.tbright{display:flex;align-items:center;gap:8px;margin-left:8px}
+.tbright input{width:130px;border:0;border-radius:1px;padding:4px 6px;font:inherit;font-size:11px;background:#fff;color:#333}
+.iconbtn{background:none;border:0;color:#fff;padding:4px;display:flex}
+
+.dropdown{position:fixed;background:#fff;border:1px solid var(--line);box-shadow:0 4px 14px rgba(0,0,0,.18);min-width:170px;z-index:50;padding:4px 0}
+.dropdown button{display:block;width:100%;text-align:left;background:none;border:0;padding:6px 14px;color:var(--text)}
+.dropdown button:hover{background:var(--rowsel)}
+
+.side{background:var(--nav);color:var(--nav-text);overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column}
+.actionsbar{background:var(--actions);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 8px;height:28px;border:0;width:100%;text-align:left}
+.actionsbar span:first-child{display:flex;align-items:center;gap:6px}
+.sub-title{padding:10px 4px 6px}
+.sub-title b{display:block;font-size:14px;font-weight:400;color:#fff}
+.sub-title small{color:#8a909b;font-size:10px}
+.timeline{position:relative;list-style:none;margin:0;padding:0}
+.timeline::before{content:"";position:absolute;left:7px;top:10px;bottom:10px;width:2px;background:var(--nav-line);z-index:1}
+.navsec{display:flex;justify-content:space-between;align-items:center;background:var(--nav-sec);padding:6px 10px 6px 20px;border:0;width:100%;color:var(--nav-sectext);text-align:left;border-top:1px solid #2b3850}
+.navsec .arr{color:#fff;font-size:9px}
+.navlink{display:flex;align-items:center;width:100%;border:0;background:none;color:var(--nav-text);text-align:left;padding:6px 10px 6px 25px;position:relative;font-size:13px}
+.navlink.lvl0{padding-left:20px}
+.navlink::before{content:"";position:absolute;left:4px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;background:var(--nav-line);z-index:2}
+.navlink.visited::before{background:#c9ced6}
+.navlink.sel{background:var(--nav-sec);color:#fff}
+.navlink.sel::before{left:2px;width:12px;height:12px;margin-top:-6px;background:#fff;box-shadow:inset 0 0 0 3px #fff, inset 0 0 0 5px var(--nav-sec)}
+.navlink:hover:not(.disabled):not(.sel){background:rgba(255,255,255,.05)}
+.navlink.disabled{color:var(--nav-dim);cursor:default}
+.toolsec{display:flex;justify-content:space-between;align-items:center;background:var(--nav-tools);color:#fff;border:0;width:100%;padding:7px 12px 7px 8px;margin-top:10px;text-align:left}
+.toolsec span:first-child{display:flex;align-items:center;gap:6px}
+.toolsec .arr{font-size:9px}
+.tool-list{list-style:none;margin:0;padding:0;background:var(--nav-toolitems)}
+.tool-list li+li{border-top:1px solid #1e2533}
+.navlink.tool{padding:6px 10px 6px 20px;gap:7px;color:#e6e8ec}
+.navlink.tool::before{display:none}
+.side-foot{margin-top:auto;display:flex;justify-content:flex-end;padding:8px 10px;border-top:1px solid #151c29}
+.side-foot button{background:none;border:0;color:#d9dee7;font-size:15px;line-height:1}
+.expand-nav{position:fixed;left:6px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--nav);color:#fff;border:0;border-radius:2px;padding:4px 8px;display:none}
+.app.collapsed .expand-nav{display:block}
+
+.main{display:flex;flex-direction:column;min-width:0;overflow:hidden;background:var(--page)}
+.infobar{display:flex;align-items:center;gap:18px;padding:0 16px;height:30px;background:#fff;border-bottom:1px solid var(--rule);flex-wrap:nowrap;overflow-x:auto;font-size:12.5px;color:#3a3a3a;flex:none}
+.infobar b{font-weight:700;color:#222}
+.infobar span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.pagehead{display:flex;align-items:center;gap:12px;padding:5px 12px 5px 16px;flex-wrap:wrap;background:#fff;border-bottom:1px solid var(--rule);flex:none}
+.pagehead h1{font-size:19px;font-weight:400;margin:0;color:var(--title)}
+.pagehead .ret{font-size:12px}
+.pagehead .acts{margin-left:auto;display:flex;gap:5px;flex-wrap:wrap}
+.content{flex:1;overflow:auto;padding:10px 16px 40px 22px}
+
+.btn{background:var(--btn);color:#fff;border:0;border-radius:2px;padding:5px 11px;font-size:12.5px;white-space:nowrap}
+.btn:hover{background:var(--btn-h)}
+.btn[disabled]{background:#b7c2cb;cursor:default;color:#f4f6f8}
+.btn.sm{padding:3px 8px;font-size:12px}
+.btn .spin{display:inline-block;width:10px;height:10px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-1px;margin-right:4px}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.btn .spin{animation:none}}
+
+.tabs{display:flex;flex-wrap:wrap;margin:8px 0 0;position:relative;z-index:1}
+.tab{background:#fff;border:1px solid var(--line);border-left-width:0;padding:5px 11px;color:var(--text);font-size:12.5px;margin-bottom:-1px}
+.tab:first-child{border-left-width:1px}
+.tab:hover{background:#f7f8fa}
+.tab.on{font-weight:700;border-bottom-color:#fff}
+.tabs + .box, .tabs + .highlights{margin-top:0}
+.btnrow{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 4px}
+
+.box{border:1px solid var(--line);background:var(--card);margin:8px 0;max-width:1100px}
+.scroll{overflow-x:auto}
+table.grid{border-collapse:collapse;width:100%;min-width:560px}
+.grid th{font-weight:600;text-align:left;padding:7px 8px;border-bottom:1px solid var(--rule);white-space:nowrap;color:#444}
+.grid th.sortable{cursor:pointer;user-select:none}
+.grid th .srt{font-size:7px;color:#9a9da3;margin-left:4px;letter-spacing:-1px}
+.grid td{padding:6px 8px;border-bottom:1px solid #eef0f2;vertical-align:middle}
+.grid tr.clickrow{cursor:pointer}
+.grid tr.clickrow:hover td{background:#f3f9fd}
+.grid tr.selrow td{background:var(--rowsel)}
+.grid .num{text-align:center}
+.grid .empty{text-align:center;color:var(--muted);padding:14px}
+.gridtools{display:flex;justify-content:flex-end;padding:3px 4px 0}
+.gridtools button{background:none;border:0;color:#444;padding:2px}
+
+.stat{display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;border-radius:50%;color:#fff;font-size:10px;font-weight:700;line-height:1;flex:none}
+.stat.high{background:var(--high)}
+.stat.med{background:var(--med)}
+.stat.low{background:var(--low)}
+.stat.info{background:var(--info)}
+.statcell{display:flex;align-items:center;gap:14px}
+
+.hhwrap{background:var(--card);border:1px solid var(--line);padding:0 10px 10px;max-width:1100px}
+.highlights{background:var(--page);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px 24px;padding:10px 12px;border:1px solid var(--line)}
+.kv{margin:0;display:grid;grid-template-columns:125px 1fr;gap:5px 8px;align-content:start}
+.kv dt{color:var(--label)}
+.kv dd{margin:0;color:var(--text)}
+.kv .hd{grid-column:1/-1;font-weight:700;min-height:18px;color:var(--text)}
+
+.split{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;max-width:1100px}
+.split > .box{flex:1 1 440px;margin:0}
+.chartbox{flex:0 0 230px;border:1px solid var(--line);padding:10px;background:var(--card)}
+.chartbox h3{font-size:14px;font-weight:400;margin:0 0 8px;color:var(--title)}
+.chart{display:flex;align-items:center;gap:14px}
+.legend{list-style:none;margin:0;padding:0;font-size:11.5px}
+.legend li{display:flex;align-items:center;gap:6px;margin:3px 0}
+.legend i{width:10px;height:7px;display:inline-block}
+.boxhead{display:flex;align-items:center;gap:12px;padding:8px 8px 4px}
+.boxhead h3{font-size:14px;font-weight:400;margin:0;color:var(--title)}
+.boxhead .gridtools{margin-left:auto}
+
+.rc{border:1px solid var(--line);margin-top:12px;padding:10px 12px;background:var(--card)}
+.rc h3{font-size:15px;font-weight:400;margin:0 0 8px;color:var(--title)}
+.rc .cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.rc .kv{grid-template-columns:130px 1fr;background:var(--page);padding:6px 6px 10px}
+.rc .sep{grid-column:1/-1;border-top:1px solid var(--line);margin:4px 0}
+
+.form{display:grid;grid-template-columns:minmax(0,520px) minmax(0,420px);gap:0}
+.form .col{padding:4px 18px 10px 10px}
+.form .col:first-child{border-right:1px solid var(--rule);padding-left:10px}
+.form .col:last-child{padding-left:20px}
+.form .col:last-child .frow{grid-template-columns:160px minmax(0,215px)}
+.frow{display:grid;grid-template-columns:160px minmax(0,300px);align-items:center;min-height:27px;gap:10px;margin:0 0 8px}
+.frow > label,.frow > .lb{color:var(--label)}
+.frow > .lb.strong{color:#55585e;font-weight:600}
+.fsec{font-weight:600;margin:12px 0 10px;color:#4a4d53}
+.fsec:first-child{margin-top:6px}
+.rule{border-top:1px solid var(--rule);margin:12px -10px 12px}
+.val{color:var(--text)}
+.inp{position:relative;display:flex;align-items:center}
+.inp input,.inp select,.inp textarea{width:100%;border:1px solid var(--field-border);border-radius:1px;padding:5px 8px;font:inherit;font-size:13px;background:#fff;color:var(--text)}
+.inp input::placeholder{color:#a5a8ad}
+.inp select{appearance:none;padding-right:26px;color:var(--sel-text);border-color:var(--sel-border)}
+.inp .sel-car{position:absolute;right:9px;pointer-events:none;width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid var(--sel-text)}
+.inp.req::before{content:"*";color:var(--req);position:absolute;left:-11px;top:-3px;font-size:15px}
+.inp.money .pre{border:1px solid var(--field-border);border-right:0;background:#fff;padding:5px 8px;color:var(--text)}
+.ico{border:1px solid var(--field-border);background:#fff;color:#3d7298;padding:0;margin-left:6px;display:flex;align-items:center;justify-content:center;width:30px;height:29px;flex:none;border-radius:3px}
+.ico.cal{margin-left:0;border-left:0;border-radius:0 2px 2px 0}
+.ico.chg{background:var(--btn);border:0;color:#fff;width:24px;height:22px;border-radius:2px}
+.inp textarea{min-height:120px;resize:vertical}
+.w-mid{max-width:none}
+.chgto{display:flex;justify-content:space-between;align-items:center;color:#4a4d53}
+
+.placeholder{max-width:560px;margin:20px 0;padding:18px;border:1px dashed #c9cdd3;color:var(--muted);background:#fff}
+.placeholder b{color:var(--text);display:block;margin-bottom:6px;font-size:14px}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#1d2637;color:#fff;padding:9px 16px;border-radius:3px;box-shadow:0 4px 16px rgba(0,0,0,.25);z-index:80;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw}
+.toast.show{opacity:1}
+
+.modal-bg{position:fixed;inset:0;background:rgba(10,20,30,.45);display:flex;align-items:center;justify-content:center;z-index:70;padding:16px}
+.modal{background:#fff;width:min(480px,100%);border:1px solid var(--line);box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.modal header{background:var(--top);color:#fff;padding:8px 12px;font-weight:600;display:flex;justify-content:space-between}
+.modal header button{background:none;border:0;color:#fff;font-size:16px;line-height:1}
+.modal .mb{padding:14px 12px 4px 20px;background:var(--page)}
+.modal footer{display:flex;justify-content:flex-end;gap:6px;padding:8px 12px;border-top:1px solid var(--line)}
+
+.play{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:60;background:#fff;border:1px solid var(--line);box-shadow:0 4px 18px rgba(0,0,0,.18);border-radius:4px;padding:8px 10px;display:flex;gap:10px;align-items:center;font-size:12px}
+.play label{display:flex;gap:5px;align-items:center;cursor:pointer}
+.play button{background:none;border:1px solid var(--line);border-radius:2px;padding:2px 8px;color:var(--text)}
+
+body.hints .btn:not([disabled]), body.hints .navlink:not(.disabled), body.hints .tab, body.hints .rlink,
+body.hints tr.clickrow td:first-child, body.hints .tm > button, body.hints th.sortable, body.hints .extlink, body.hints .ret a, body.hints .ico{
+  outline:2px dashed var(--hint);outline-offset:1px
+}
+
+@media (max-width:760px){
+  .app{grid-template-columns:0 1fr}
+  .app.mobile-open{grid-template-columns:180px 1fr}
+  .app .expand-nav{display:block}
+  .app.mobile-open .expand-nav{display:none}
+  .logo{padding:0}
+  .form{grid-template-columns:1fr}
+  .form .col:first-child{border-right:0}
+  .frow{grid-template-columns:120px 1fr}
+  .highlights{grid-template-columns:1fr}
+  .rc .cols{grid-template-columns:1fr}
+  .tbright input{display:none}
+  .play{left:12px;right:auto;bottom:calc(52px + env(safe-area-inset-bottom,0px))}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="logo">
+    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 2h14v4H6v6h6v-2H9V8h7v8H2z" fill="#fff"/></svg>
+    <span>PolicyCenter<sup>TM</sup></span>
+  </div>
+  <div class="topbar">
+    <nav class="menus" id="menus" aria-label="Main menu"></nav>
+    <div class="tbright">
+      <button class="iconbtn" aria-label="Bookmarks" data-toast="Bookmarks opened"><svg width="13" height="14" viewBox="0 0 13 14"><path d="M1 0h11v14l-5.5-4L1 14z" fill="currentColor"/></svg></button>
+      <button class="iconbtn" aria-label="Settings" data-toast="Settings opened"><svg width="14" height="14" viewBox="0 0 24 24"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3h-4l-.4 2.9a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1L11 21h4l.4-2.9a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg></button>
+      <input type="search" placeholder="Go to (Alt+/)" aria-label="Go to" id="goto">
+    </div>
+  </div>
+
+  <aside class="side" id="side" aria-label="Submission navigation"></aside>
+
+  <main class="main">
+    <div class="infobar">
+      <span><svg width="13" height="13" viewBox="0 0 14 14"><path d="M7 0v8M3 5l4 4 4-4M1 10v3h12v-3" stroke="currentColor" stroke-width="2" fill="none"/></svg>Submission (Draft)</span>
+      <span><svg width="12" height="13" viewBox="0 0 12 14"><rect x="1" y="1" width="10" height="12" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 4h6M3 7h6M3 10h6" stroke="currentColor"/></svg>Commercial Property</span>
+      <span>Effective: 09/09/2022</span>
+      <span>Primary: <b>AEA llc</b></span>
+      <span>Account: <a class="extlink" data-toast="Account 0593576288 opened">0593576288</a></span>
+      <span>Underwriter: <b>Steve Smith</b></span>
+    </div>
+    <div class="pagehead" id="pagehead"></div>
+    <div class="content" id="content"></div>
+  </main>
+  <button class="expand-nav" id="expandNav" aria-label="Show navigation">&raquo;</button>
+</div>
+
+<div class="play" role="region" aria-label="Playground controls">
+  <label><input type="checkbox" id="hintToggle"> Show clickable areas</label>
+  <button id="resetBtn">Reset</button>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+/* ---------- data ---------- */
+var FACTORS = [
+ ["F","high","Convective storm risk grade","Very High",1],
+ ["D","high","Mold risk grade","High",1],
+ ["D","high","Damaging hail risk grade","High",1],
+ ["D","high","Underground storage tank proximity grade","922 Feet from Underground Storage Tank Facility",1],
+ ["D","high","Radon risk grade","Predicted average indoor radon screening levels greater than 4 pCi/L",0],
+ ["D","high","Damaging wind risk grade","High",1],
+ ["C","high","Landslide risk grade","In area where steep slopes have a high susceptibility to landslides with moderate incidence.",0],
+ ["C","med","Historic drought frequency grade","Moderate",1],
+ ["C","med","Tornado risk grade","Moderate",1],
+ ["C","med","Toxic release facilities proximity grade","Moderate",1],
+ ["C","med","Lightning risk grade","Moderate",1],
+ ["C","med","Larceny risk grade","Average larceny rate",1],
+ ["N/A","info","Maximum storm surge risk grade","Not in risk area",1],
+ ["N/A","info","Tsunami risk grade","Not in risk area",1],
+ ["B","low","Ground snow load grade","Low",1],
+ ["B","low","Forcible robbery risk grade","Low forcible robbery rate",1],
+ ["B","low","Crime risk grade","Low crime rate",1],
+ ["B","low","Earthquake damage potential grade","Light Damage",1],
+ ["B","low","Nuclear site proximity grade","Low",1],
+ ["B","low","Murder risk grade","Low murder rate",1],
+ ["B","low","Drug and alcohol deaths risk grade","LOW",1],
+ ["B","low","FEMA flood risk grade","Covered by FEMA digital maps. Minimal to No Risk of Flooding",1],
+ ["B","low","Motor vehicle theft risk grade","Low motor vehicle theft rate",1],
+ ["B","low","Ice dam risk grade","Low",1],
+ ["B","low","Fire protection grade","Within Municipality & > 1 & <= 2 Drive Miles from Fire Station",1],
+ ["B","low","Burglary risk grade","Low burglary rate",1],
+ ["B","low","Hurricane risk grade","Low Property Damage",1],
+ ["B","low","Frozen pipe risk grade","Low",1],
+ ["B","low","Superfund site proximity grade","More than 1 mile from nearest site",1],
+ ["B","low","Hail risk grade","Low",1],
+ ["A","low","Aggravated assault risk grade","Very low aggravated assault rate",1],
+ ["A","low","Catastrophic flood risk grade","Extremely Low risk of flood damage",1],
+ ["A","low","Snow load risk grade","None",1],
+ ["A","low","Fire hydrant grade","< 250 Feet from Reported Hydrant",1],
+ ["A","low","Wildfire grade","None/Very Low",1],
+ ["A","low","Forcible rape risk grade","Very low forcible rape rate",1],
+ ["A","low","Special wind region grade","Not in Special Wind Region",0],
+ ["A","low","Flood risk grade","Extremely Low risk of flood damage",1],
+ ["A","low","Natural earthquake grade","More than 20 Miles from Known Earthquake Fault",1],
+ ["A","low","Sinkhole proximity grade","Property is > 1000 feet from a reported sinkhole",1],
+ ["A","low","Volcano proximity grade","No active volcano within 100 miles",1],
+ ["A","low","Brownfield proximity grade","No brownfield within 1 mile",1],
+ ["A","low","Pollen risk grade","Low",1],
+ ["A","low","Dam proximity grade","Not downstream of a high hazard dam",1],
+ ["A","low","Wind pool eligibility grade","Not in wind pool area",1],
+ ["A","low","Coastal distance grade","More than 100 miles from coast",1],
+ ["A","low","Arson risk grade","Very low arson rate",1],
+ ["A","low","Vandalism risk grade","Very low vandalism rate",1],
+ ["A","low","Soil liquefaction grade","Very low susceptibility",1]
+].map(function(r,i){return {id:i,grade:r[0],status:r[1],name:r[2],desc:r[3],link:!!r[4]};});
+
+function f(name){return FACTORS.filter(function(x){return x.name===name})[0];}
+function relevant(overrides){
+  var names=["Convective storm risk grade","Tornado risk grade","FEMA flood risk grade","Fire protection grade","Fire hydrant grade","Wildfire grade","Flood risk grade"];
+  return names.map(function(n){var b=f(n);var o=(overrides||{})[n];return o?Object.assign({},b,o):b;});
+}
+
+var LOCS = [
+ {n:1,primary:true,code:"01",name:"Atlanta",addr:"11555 Rainwater Drive, Alpharetta, GA 30009",
+  elev:"1072.9 feet",coast:"> 100 miles",slope:"5.06 degrees",geo:"houseNumber (100%)",fema:"X",fpc:"P2",hyd:"8",fs:"13",dist:"1.51 miles (4 minutes)",
+  rel:relevant({"Fire hydrant grade":{desc:"> 250 feet AND <= 500 feet from Reported Hydrant"}}),
+  rc:{cost:"$312,500.00",style:"Contemporary",quality:"custom",shape:"L-shaped",ctype:"masonry, brick",ext:"BRICK VENEER",roof:"ARCHITECTURAL SHINGLE",locale:"suburban",year:"1998",stories:"2",sqft:"2840"}},
+ {n:2,primary:false,code:"02",name:"Alpharetta",addr:"52b n Main St, Alpharetta, GA 30009",
+  elev:"1121.26 feet",coast:"> 100 miles",slope:"1.19 degrees",geo:"houseNumber (100%)",fema:"X",fpc:"P2",hyd:"25",fs:"12",dist:"1.32 miles (3 minutes)",
+  rel:relevant(),
+  rc:{cost:"$245,000.00",style:"Colonial",quality:"above average / upgraded",shape:"rectangular",ctype:"framing, wood",ext:"STUCCO",roof:"COMPOSITION SHINGLE",locale:"suburban",year:"1944",stories:"",sqft:"1507"}},
+ {n:3,primary:false,code:"03",name:"San diego",addr:"101 Ash St, San Diego, CA 92101",
+  elev:"64.2 feet",coast:"0.9 miles",slope:"0.84 degrees",geo:"houseNumber (100%)",fema:"X",fpc:"P1",hyd:"31",fs:"22",dist:"0.58 miles (2 minutes)",
+  rel:relevant({"Convective storm risk grade":{grade:"A",status:"low",desc:"Very Low"},"Tornado risk grade":{grade:"A",status:"low",desc:"Very Low"},"Fire protection grade":{grade:"A",desc:"Within Municipality & <= 1 Drive Mile from Fire Station"},"Wildfire grade":{grade:"C",status:"med",desc:"Moderate"}}),
+  rc:{cost:"$1,180,000.00",style:"High-rise",quality:"above average / upgraded",shape:"rectangular",ctype:"fire resistive",ext:"CONCRETE",roof:"BUILT-UP",locale:"urban",year:"1987",stories:"12",sqft:"9600"}}
+];
+
+var DETAILS = {
+ "Flood risk grade":[
+  ["HazardHub flooding feature type","Perennial Stream"],
+  ["Difference between elevation at location and elevation of nearest flood primary flooding feature in feet","43"],
+  ["Description of flooding polygon feature","Lake, Pond, Reservoir, Other"],
+  ["Distance to a freshwater line feature","837"],
+  ["Elevation of the location in feet","1121.26"],
+  ["Elevation difference between location and freshwater line feature","43"],
+  ["HazardHub flood score (A-F) for nearest small stream","A"],
+  ["HazardHub type of flooding polygon (large river or lake-pond-reservoir-other)","Lake, Pond, Reservoir, Other"],
+  ["Distance to nearest primary flooding feature (e.g. large rivers) in feet","837"],
+  ["HazardHub flood score (A-F) for nearest flooding polygon","A"],
+  ["Elevation of nearest primary flooding feature in feet","1078"]
+ ],
+ "Fire protection grade":[
+  ["Fire protection class","P2"],["Responding fire station","Alpharetta Fire Station 82"],["Drive distance to fire station in miles","1.32"],
+  ["Drive time to fire station in minutes","3"],["Within municipal boundary","Yes"],["Fire stations within 5 miles","12"]
+ ],
+ "Fire hydrant grade":[
+  ["Distance to nearest reported hydrant in feet","188"],["Hydrants within 1000 feet","25"],["Hydrant data source","Municipal GIS"]
+ ],
+ "Convective storm risk grade":[
+  ["HazardHub convective storm score (A-F)","F"],["Historical severe hail events within 5 miles","41"],
+  ["Historical damaging wind events within 5 miles","67"],["Tornado touchdowns within 25 miles","14"]
+ ],
+ "Tornado risk grade":[
+  ["HazardHub tornado score (A-F)","C"],["Tornado touchdowns within 25 miles","14"],["Strongest recorded rating within 25 miles","EF3"]
+ ]
+};
+
+var MENUS = [
+ ["Desktop",["My Activities","My Submissions","My Queues"],3],
+ ["Account",["New Account","Recent Accounts"],1],
+ ["Policy",["New Submission","Recent Policies"],0],
+ ["Contact",["Search Contacts","New Contact"],0],
+ ["Reinsurance",["Programs","Agreements"],0],
+ ["Search",["Policies","Accounts","Activities"],5],
+ ["Team",null,0],["Report",null,-1],
+ ["Utility",["Import Data","Vacation Status"],0],
+ ["Administration",["Users & Security","Business Settings"],0]
+];
+
+/* ---------- state ---------- */
+function fresh(){
+  return {page:"policyInfo",raTab:"HazardHub",locTab:"primary",selLoc:0,detTab:"Details",factor:null,
+    sortAll:null,sortRel:null,requested:{},history:[
+      {date:"09/08/2022 10:14 AM",sol:"HazardHub Property (Commercial)",user:"Steve Smith",loc:"All locations",result:"Success"}],
+    uwIssues:[],navCollapsed:false,contractOpen:true,toolsOpen:true};
+}
+var S = fresh();
+
+/* ---------- helpers ---------- */
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+var toastT;
+function toast(msg){var t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove("show")},2600);}
+function statIcon(s){
+  if(s==="high")return '<span class="stat high" aria-label="High concern">!</span>';
+  if(s==="med")return '<span class="stat med" aria-label="Medium concern"></span>';
+  if(s==="info")return '<span class="stat info" aria-label="Info only">i</span>';
+  return '<span class="stat low" aria-label="Low concern"><svg width="8" height="8" viewBox="0 0 10 10"><path d="M1 5l3 3 5-6" stroke="#fff" stroke-width="2" fill="none"/></svg></span>';
+}
+function counts(list){var c={info:0,low:0,med:0,high:0};list.forEach(function(x){c[x.status]++});return c;}
+function pie(c,size){
+  var parts=[["info","var(--info)"],["low","var(--low)"],["med","#ef9a47"],["high","var(--high)"]];
+  var total=c.info+c.low+c.med+c.high, r=size/2, a=-Math.PI/2, out="";
+  parts.forEach(function(p){
+    var v=c[p[0]]; if(!v)return;
+    var ang=v/total*Math.PI*2;
+    if(v===total){out+='<circle cx="'+r+'" cy="'+r+'" r="'+r+'" fill="'+p[1]+'"/>';return;}
+    var x1=r+r*Math.cos(a),y1=r+r*Math.sin(a),x2=r+r*Math.cos(a+ang),y2=r+r*Math.sin(a+ang);
+    out+='<path d="M'+r+' '+r+' L'+x1+' '+y1+' A'+r+' '+r+' 0 '+(ang>Math.PI?1:0)+' 1 '+x2+' '+y2+' Z" fill="'+p[1]+'"/>';
+    a+=ang;
+  });
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" role="img" aria-label="Risk factor mix">'+out+'</svg>';
+}
+function legend(c){
+  return '<ul class="legend"><li><i style="background:var(--info)"></i>Info Only: '+c.info+'</li><li><i style="background:var(--low)"></i>Low Concern: '+c.low+'</li><li><i style="background:#ef9a47"></i>Medium Concern: '+c.med+'</li><li><i style="background:var(--high)"></i>High Concern: '+c.high+'</li></ul>';
+}
+var ORDER={F:0,E:1,D:2,C:3,"N/A":4,B:5,A:6};
+var SORTKEY={status:function(x){return ORDER[x.grade]},name:function(x){return x.name.toLowerCase()},desc:function(x){return x.desc.toLowerCase()}};
+function sorted(list,s){
+  if(!s)return list;
+  var k=SORTKEY[s.col];
+  return list.slice().sort(function(a,b){var A=k(a),B=k(b);return (A<B?-1:A>B?1:0)*(s.dir)});
+}
+function th(label,col,sortState,which){
+  var arrow = sortState&&sortState.col===col ? (sortState.dir>0?"&#9650;":"&#9660;") : "&#9650;&#9660;";
+  return '<th class="sortable" data-sort="'+which+':'+col+'" tabindex="0">'+label+'<span class="srt">'+arrow+'</span></th>';
+}
+function gridTools(){return '<div class="gridtools"><button data-toast="Column picker opened" aria-label="Choose columns"><svg width="14" height="12" viewBox="0 0 14 12"><path d="M0 0h4v3H0zM5 0h4v3H5zM10 0h4v3h-4zM0 4.5h4v3H0zM5 4.5h4v3H5zM10 4.5h4v3h-4zM0 9h4v3H0zM5 9h4v3H5zM10 9h4v3h-4z" fill="currentColor"/></svg></button></div>';}
+function factorRows(list){
+  return list.map(function(x){
+    var nm = x.link ? '<a class="rlink" data-factor="'+esc(x.name)+'">'+esc(x.name)+'</a>' : esc(x.name);
+    return '<tr><td><span class="statcell">'+statIcon(x.status)+'<span>'+x.grade+'</span></span></td><td>'+nm+'</td><td>'+esc(x.desc)+'</td></tr>';
+  }).join("");
+}
+
+/* ---------- chrome ---------- */
+function renderMenus(){
+  document.getElementById("menus").innerHTML = MENUS.map(function(m,i){
+    var k=m[2],lbl=k<0?m[0]:m[0].slice(0,k)+'<u>'+m[0][k]+'</u>'+m[0].slice(k+1);
+    return '<div class="tm'+(m[0]==="Policy"?" active":"")+'"><button data-menu="'+i+'" data-main="1">'+lbl+'</button>'+(m[1]?'<button class="car" data-menu="'+i+'" aria-label="'+m[0]+' menu"><svg width="10" height="7" viewBox="0 0 10 7"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.8" fill="none"/></svg></button>':'')+'</div>';
+  }).join("");
+}
+var NAV = [
+ {key:"policyInfo",label:"Policy Info"},{key:"buildings",label:"Buildings and Locations"},{key:"blankets",label:"Blankets"},
+ {key:"manuscript",label:"Manuscript Endorsements"},{key:"modifiers",label:"Modifiers"}
+];
+var NAV2 = [{key:"riskAnalysis",label:"Risk Analysis"},{key:"policyReview",label:"Policy Review"},{key:"quote",label:"Quote",dis:1},{key:"forms",label:"Forms",dis:1},{key:"payment",label:"Payment",dis:1}];
+var TOOLS=["Notes","Documents","Participants","Workplan","History"];
+function navSel(){
+  if(S.page==="allFactors"||S.page==="factorDetail")return "riskAnalysis";
+  return S.page;
+}
+function renderSide(){
+  var sel=navSel();
+  var TI={Notes:'<path d="M3 2h8v10H3z M5 5h4M5 7.5h4" />',Documents:'<path d="M4 1h6l2 2v9H4z M2 3v10h8"/>',Participants:'<circle cx="4.5" cy="4" r="2"/><circle cx="10" cy="3.5" r="1.6"/><path d="M1 12c0-3 7-3 7 0M8 8c1-1.5 5-1.5 5 1.5"/>',Workplan:'<path d="M1 2h2M5 2h8M1 7h2M5 7h8M1 12h2M5 12h8"/>',History:'<path d="M2 7a5 5 0 1 0 1.5-3.6M2 1.5V4h2.5M7 4.5V7l2 1.5"/>'};
+  var h='<button class="actionsbar" data-act="actions"><span><svg width="14" height="11" viewBox="0 0 14 11"><path d="M0 1h2M4 1h10M0 5.5h2M4 5.5h10M0 10h2M4 10h10" stroke="#fff" stroke-width="1.6"/></svg><span><u>A</u>ctions</span></span><span style="font-size:10px">&#9654;</span></button>';
+  h+='<div class="sub-title"><b>Submission 0000136360</b><small>Draft</small></div>';
+  h+='<div class="timeline"><button class="navsec" data-act="toggleContract" aria-expanded="'+S.contractOpen+'"><span>Policy Contract</span><span class="arr">'+(S.contractOpen?"&#9650;":"&#9660;")+'</span></button>';
+  h+='<ul class="nav-list" style="list-style:none;margin:0;padding:0">';
+  if(S.contractOpen) NAV.forEach(function(n){h+='<li><button class="navlink'+(sel===n.key?" sel":"")+'" data-nav="'+n.key+'">'+n.label+'</button></li>';});
+  NAV2.forEach(function(n){h+='<li><button class="navlink lvl0'+(n.dis?" disabled":"")+(sel===n.key?" sel":(n.key==="riskAnalysis"&&sel!=="riskAnalysis"?" visited":""))+'" '+(n.dis?'aria-disabled="true"':'data-nav="'+n.key+'"')+'>'+n.label+'</button></li>';});
+  h+='</ul></div>';
+  h+='<button class="toolsec" data-act="toggleTools" aria-expanded="'+S.toolsOpen+'"><span><svg width="13" height="13" viewBox="0 0 13 13"><path d="M1 1l11 11M12 1L1 12" stroke="#fff" stroke-width="2"/></svg>Tools</span><span class="arr">'+(S.toolsOpen?"&#9650;":"&#9660;")+'</span></button><ul class="tool-list">';
+  if(S.toolsOpen) TOOLS.forEach(function(t){h+='<li><button class="navlink tool" data-nav="tool:'+t+'"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">'+TI[t]+'</svg>'+t+'</button></li>';});
+  h+='</ul><div class="side-foot"><button data-act="collapseNav" aria-label="Hide navigation">&laquo;</button></div>';
+  document.getElementById("side").innerHTML=h;
+}
+
+/* ---------- pages ---------- */
+var WIZ=["policyInfo","buildings","blankets","manuscript","modifiers","riskAnalysis","policyReview"];
+function stdActs(back){
+  return (back?'<button class="btn" data-act="back">Back</button>':'')+'<button class="btn" data-act="next">Next</button><button class="btn" data-act="rate">Rate</button><button class="btn" data-act="save">Save Draft</button><button class="btn" data-act="closeOpts">Close Options &#9662;</button>';
+}
+function head(title,ret,acts){
+  document.getElementById("pagehead").innerHTML='<h1>'+title+'</h1>'+(ret?'<span class="ret"><a data-nav="'+ret[1]+'">'+ret[0]+'</a></span>':'')+(acts?'<div class="acts">'+acts+'</div>':'');
+}
+
+function field(label,inner,req,cls){return '<div class="frow"><label>'+label+'</label><div class="inp'+(req?" req":"")+(cls?" "+cls:"")+'">'+inner+'</div></div>';}
+function sel(opts,cur,blue){return '<select'+(blue?' class="blue"':'')+'>'+opts.map(function(o){return '<option'+(o===cur?' selected':'')+'>'+o+'</option>'}).join("")+'</select><span class="sel-car"></span>';}
+function cal(){return '<button class="ico cal" aria-label="Pick date" data-toast="Date picker opened"><svg width="13" height="13" viewBox="0 0 13 13"><rect x="1" y="2" width="11" height="10" rx="1" fill="currentColor"/><path d="M3.5 0.5v3M9.5 0.5v3" stroke="currentColor" stroke-width="1.5"/><path d="M3 6h1.5M5.8 6h1.5M8.6 6h1.5M3 8.5h1.5M5.8 8.5h1.5M8.6 8.5h1.5" stroke="#fff" stroke-width="1.2"/></svg></button>';}
+function search(t){return '<button class="ico" aria-label="Search" data-toast="'+t+'"><svg width="13" height="13" viewBox="0 0 12 12"><circle cx="5" cy="5" r="3.7" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M7.8 7.8l3.4 3.4" stroke="currentColor" stroke-width="2"/></svg></button>';}
+function chg(){return '<button class="ico chg" aria-label="Change" data-act="changeTo"><svg width="9" height="6" viewBox="0 0 9 6"><path d="M0 0h9L4.5 6z" fill="#fff"/></svg></button>';}
+
+function pagePolicyInfo(){
+  head("Policy Info",null,stdActs(false));
+  var L='<div class="col">'+
+   field("Date Quote Needed",'<input placeholder="MM/dd/yyyy">'+cal())+
+   field("Estimated Premium",'<span class="pre">$</span><input value="25,000.00">',0,"money")+
+   '<div class="rule"></div>'+
+   '<div class="frow"><div class="lb strong">Primary Named Insured</div><div class="chgto">Change To:'+chg()+'</div></div>'+
+   '<div class="frow"><div class="lb">Name</div><div><a data-toast="Contact AEA llc opened">AEA llc</a></div></div>'+
+   '<div class="frow"><div class="lb">Phone</div><div></div></div>'+
+   '<div class="frow"><div class="lb strong">Policy Address</div><div class="chgto">Change To:'+chg()+'</div></div>'+
+   '<div class="frow"><div class="lb"></div><div>713 E Paces Ferry Rd NE, Atlanta, GA 30305<br>Atlanta, GA 30305</div></div>'+
+   '<div class="frow"><div class="lb">Need Help ?</div><div><button class="btn sm" data-act="gmaps">Google Maps</button></div></div>'+
+   '<div class="frow"><div class="lb">County</div><div class="val">Fulton County</div></div>'+
+   '<div class="frow"><div class="lb">Address Type</div><div class="val">Home</div></div>'+
+   '<div class="frow"><div class="lb">Address Description</div><div class="val">Owners physical Address</div></div>'+
+   '<div class="fsec">Official IDs</div>'+
+   field("FEIN",'<input placeholder="##-#######">')+
+   field("Industry Code",'<input>'+search("Industry code search opened"))+
+   '<div class="rule"></div><div class="fsec">Business and Operations</div>'+
+   field("Year Business Started",'<input value="2021">')+
+   field("Description of business and operations",'<textarea>Restaurant, Bar, Food</textarea>')+
+   field("Organization Type",sel(["LLC","Corporation","Partnership","Sole Proprietor"],"LLC",true),1)+
+   '<div class="rule"></div><div class="fsec">Additional Named Insureds</div><div class="frow"><div class="lb"></div><div><button class="btn sm" data-toast="Add named insured form opened">Add</button></div></div>'+
+  '</div>';
+  var R='<div class="col">'+
+   '<div class="fsec">Policy Details</div>'+
+   field("Term Type",sel(["Annual","6 Months","Other"],"Annual",true),1)+
+   '<div class="frow"><div class="lb">Term Number</div><div></div></div>'+
+   field("Effective Date",'<input value="09/09/2022">'+cal(),1)+
+   '<div class="frow"><div class="lb">Expiration Date</div><div class="val">09/09/2023</div></div>'+
+   field("Written Date",'<input value="09/08/2022">'+cal(),1)+
+   '<div class="frow"><div class="lb">Rate as of Date</div><div></div></div>'+
+   field("Base State",sel(["Georgia","California","Texas","Florida"],"Georgia",true),1)+
+   field("Preferred Language",sel(["English (US)","Spanish"],"English (US)",true))+
+   '<div class="rule"></div><div class="fsec">Affinity Group</div>'+
+   field("Name",'<input>'+search("Affinity group search opened"))+
+   '<div class="rule"></div><div class="fsec">Producer of Record</div>'+
+   field("Organization",'<input value="Allrisk Insurance">'+search("Organization search opened"),1)+
+   field("Producer Code",sel(["501-002552 Allrisk Insurance","501-002553 Allrisk South"],"501-002552 Allrisk Insurance",true),1)+
+   '<div class="rule"></div><div class="fsec">Underwriting Companies</div>'+
+   field("",sel(["Acme Low Hazard Insurance","Acme High Hazard Insurance"],"Acme Low Hazard Insurance",true),1)+'<div class="rule"></div>'+
+  '</div>';
+  return '<div class="form">'+L+R+'</div>';
+}
+
+function pageBuildings(){
+  head("Buildings and Locations",null,stdActs(true));
+  return '<div class="btnrow" style="margin-top:6px"><button class="btn" data-act="addLoc">Add Location</button><button class="btn" data-toast="Select a location first" >Remove Location</button></div>'+
+  '<div class="box scroll"><table class="grid"><thead><tr><th></th><th>Loc. #</th><th>Location Name</th><th>Address</th><th>Buildings</th></tr></thead><tbody>'+
+  LOCS.map(function(l){return '<tr><td><input type="checkbox" aria-label="Select location '+l.n+'"></td><td>'+l.n+'</td><td>'+esc(l.name)+'</td><td>'+esc(l.addr)+'</td><td>1</td></tr>'}).join("")+
+  '</tbody></table></div>';
+}
+
+function pageRisk(){
+  head("Risk Analysis",null,stdActs(true));
+  var tabs=["UW Issues","Contingencies","Prior Policies","Claims","Prior Losses","Cyence","HazardHub","Risk Analytics"];
+  var h='<div class="btnrow"><button class="btn" data-act="addUW">Add UW Issue</button><button class="btn" data-act="addCont">Add Contingency</button><button class="btn" data-act="reqApproval">Request Approval</button><button class="btn" data-act="lock">Lock for Review</button></div>';
+  h+='<div class="tabs" role="tablist" style="margin-top:4px">'+tabs.map(function(t){return '<button role="tab" class="tab'+(S.raTab===t?" on":"")+'" aria-selected="'+(S.raTab===t)+'" data-ratab="'+t+'">'+t+'</button>'}).join("")+'</div>';
+  h+='<div class="hhwrap">';
+  if(S.raTab==="UW Issues") h+=uwTab();
+  else if(S.raTab==="HazardHub") h+=hhTab();
+  else h+='<div class="box" style="max-width:560px"><table class="grid" style="min-width:0"><tbody><tr><td class="empty">No data to display</td></tr></tbody></table></div>';
+  return h+'</div>';
+}
+function uwTab(){
+  var h= S.uwIssues.length? '<div style="height:10px"></div>' : '<p style="margin:10px 0 8px;font-weight:600">No issues identified at this time.</p>';
+  h+='<div class="btnrow"><button class="btn sm" disabled>Approve</button><button class="btn sm" disabled>Reject</button><button class="btn sm" disabled>Reopen</button><button class="btn sm" disabled>History</button><span style="margin-left:8px;align-self:center">View Issues Blocking:</span><div class="inp" style="width:90px">'+sel(["All","Bind","Quote","Issuance"],"All",true)+'</div></div>';
+  h+='<div class="box scroll" style="max-width:700px"><table class="grid"><thead><tr><th>Issue Type</th><th>Short Description</th><th>Blocking Point</th><th>Status</th></tr></thead><tbody>';
+  h+= S.uwIssues.length ? S.uwIssues.map(function(u){return '<tr><td>'+esc(u.type)+'</td><td>'+esc(u.desc)+'</td><td>'+esc(u.block)+'</td><td>Open</td></tr>'}).join("") : '<tr><td colspan="4" class="empty">No data to display</td></tr>';
+  return h+'</tbody></table></div>';
+}
+function hhTab(){
+  var loc=LOCS[S.selLoc];
+  var c=counts(loc.rel);
+  var h='<div class="box" style="margin-top:10px">'+gridTools()+'<div class="scroll"><table class="grid"><thead><tr><th style="width:80px"></th><th>Solution Name <span class="srt">&#9650;&#9660;</span></th><th class="num">High Concern <span class="srt">&#9650;&#9660;</span></th><th class="num">Medium Concern <span class="srt">&#9650;&#9660;</span></th></tr></thead><tbody>';
+  h+='<tr class="selrow"><td>'+reqBtn("prop")+'</td><td>HazardHub Property (Commercial)</td><td class="num">'+c.high+'</td><td class="num">'+c.med+'</td></tr>';
+  h+='<tr><td>'+reqBtn("cas")+' </td><td><span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#9ea3aa;position:relative;margin-right:8px;vertical-align:-1px" title="No results yet"><span style="position:absolute;left:2px;right:2px;top:5px;height:1.5px;background:#fff"></span></span>HazardHub Casualty</td><td class="num"></td><td class="num"></td></tr>';
+  h+='</tbody></table></div></div>';
+
+  h+='<div class="tabs" style="margin-top:10px"><button class="tab'+(S.locTab==="primary"?" on":"")+'" data-loctab="primary">Primary Location</button><button class="tab'+(S.locTab==="all"?" on":"")+'" data-loctab="all">All Locations</button></div>';
+  if(S.locTab==="all"){
+    h+='<div class="box">'+gridTools()+'<div class="scroll"><table class="grid"><thead><tr><th style="width:80px"></th><th>Primary <span class="srt">&#9650;&#9660;</span></th><th>Loc. # <span class="srt">&#9650;&#9660;</span></th><th>Non Specific <span class="srt">&#9650;&#9660;</span></th><th>Location Code <span class="srt">&#9650;&#9660;</span></th><th>Location Name <span class="srt">&#9650;&#9660;</span></th><th>Address <span class="srt">&#9650;&#9660;</span></th><th>Up To Date <span class="srt">&#9650;&#9660;</span></th></tr></thead><tbody>';
+    LOCS.forEach(function(l,i){
+      h+='<tr class="clickrow'+(S.selLoc===i?" selrow":"")+'" data-loc="'+i+'" tabindex="0"><td>'+reqBtn("loc"+i)+'</td><td class="num">'+(l.primary?"X":"")+'</td><td class="num">'+l.n+'</td><td></td><td class="num">'+l.code+'</td><td>'+esc(l.name)+'</td><td>'+esc(l.addr)+'</td><td>Yes</td></tr>';
+    });
+    h+='</tbody></table></div></div>';
+  }
+
+  h+='<div class="tabs" style="margin-top:10px"><button class="tab'+(S.detTab==="Details"?" on":"")+'" data-dettab="Details">Details</button><button class="tab'+(S.detTab==="History"?" on":"")+'" data-dettab="History">History</button></div>';
+  if(S.detTab==="History"){
+    h+='<div class="box scroll"><table class="grid"><thead><tr><th>Requested</th><th>Solution</th><th>Location</th><th>Requested By</th><th>Result</th></tr></thead><tbody>'+
+      S.history.map(function(r){return '<tr><td>'+r.date+'</td><td>'+esc(r.sol)+'</td><td>'+esc(r.loc)+'</td><td>'+r.user+'</td><td>'+r.result+'</td></tr>'}).join("")+'</tbody></table></div>';
+    return h;
+  }
+  h+='<div class="highlights">'+
+    '<dl class="kv"><dt class="hd" style="color:var(--text)">Risk Highlights</dt><dt>Property Elevation</dt><dd>'+loc.elev+'</dd><dt>Distance to Coast</dt><dd>'+loc.coast+'</dd><dt>Slope</dt><dd>'+loc.slope+'</dd></dl>'+
+    '<dl class="kv"><dt class="hd"><a class="extlink" data-act="gmapsLoc">View in Google Maps</a></dt><dt>Geocoding Accuracy</dt><dd>'+loc.geo+'</dd><dt>FEMA Flood Zone</dt><dd>'+loc.fema+'</dd><dt>Fire Protection Class</dt><dd>'+loc.fpc+'</dd></dl>'+
+    '<dl class="kv" style="grid-template-columns:165px 1fr"><dt class="hd"><a class="extlink" data-act="fema">View FEMA Flood Map</a></dt><dt>Hydrants within 1000 feet</dt><dd>'+loc.hyd+'</dd><dt>Fire Stations within 5 miles</dt><dd>'+loc.fs+'</dd><dt>Distance to Fire Station</dt><dd>'+loc.dist+'</dd></dl>'+
+  '</div>';
+
+  h+='<div class="split" style="margin-top:12px"><div class="box"><div class="boxhead"><h3>Most Relevant Risk Factors ('+loc.rel.length+' of '+FACTORS.length+')</h3><button class="btn" data-nav="allFactors">View All Risk Factors ('+FACTORS.length+')</button>'+gridTools()+'</div>'+
+    '<div class="scroll"><table class="grid"><thead><tr>'+th("Risk Status","status",S.sortRel,"rel")+th("Risk Name","name",S.sortRel,"rel")+th("Risk Description","desc",S.sortRel,"rel")+'</tr></thead><tbody>'+factorRows(sorted(loc.rel,S.sortRel))+'</tbody></table></div></div>'+
+    '<div class="chartbox"><h3>RiskFactorChartInfo</h3><div class="chart">'+pie(c,96)+legend(c)+'</div></div></div>';
+
+  var r=loc.rc;
+  h+='<section class="rc"><h3>Replacement Cost</h3><div class="cols">'+
+    '<dl class="kv"><dt>Replacement Cost</dt><dd>'+r.cost+'</dd><dt>Debris Removal</dt><dd></dd><dt>Final RCV</dt><dd></dd><dd class="sep"></dd><dt>Architect Fees And Permits</dt><dd></dd><dt>House Materials And Labor</dt><dd></dd><dt>Overhead</dt><dd></dd><dt>Profit</dt><dd></dd><dd class="sep"></dd><dt>Year Built</dt><dd>'+r.year+'</dd><dt>Number Of Stories</dt><dd>'+r.stories+'</dd><dt>Square Footage</dt><dd>'+r.sqft+'</dd></dl>'+
+    '<dl class="kv"><dt>Architectural Style</dt><dd>'+r.style+'</dd><dt>Construction Quality</dt><dd>'+r.quality+'</dd><dt>Physical Shape</dt><dd>'+r.shape+'</dd><dt>Construction Type</dt><dd>'+r.ctype+'</dd><dt>Primary Exterior</dt><dd>'+r.ext+'</dd><dd class="sep"></dd><dt>Primary Roof Covering</dt><dd>'+r.roof+'</dd><dt>Roof Configuration</dt><dd></dd><dt>Foundation Type</dt><dd></dd><dt>Locale</dt><dd>'+r.locale+'</dd><dt>Slope Of Site</dt><dd></dd></dl>'+
+  '</div></section>';
+  return h;
+}
+function reqBtn(key){
+  if(S.requested[key]==="busy") return '<button class="btn sm" disabled><span class="spin"></span>Request</button>';
+  return '<button class="btn sm" data-req="'+key+'">Request</button>';
+}
+
+function pageAllFactors(){
+  head("Risk Factors",["Return to Risk Analysis","riskAnalysis"],null);
+  var c=counts(FACTORS);
+  return '<div class="split" style="max-width:1100px;margin-top:6px"><div class="box" style="flex:1 1 560px"><div class="boxhead"><h3>All Risk Factors ('+FACTORS.length+')</h3>'+gridTools()+'</div><div class="scroll"><table class="grid"><thead><tr>'+
+    th("Risk Status","status",S.sortAll,"all")+th("Risk Name","name",S.sortAll,"all")+th("Risk Description","desc",S.sortAll,"all")+'</tr></thead><tbody>'+factorRows(sorted(FACTORS,S.sortAll))+'</tbody></table></div></div>'+
+    '<div class="chartbox"><h3>Risk Factor Statistics ('+FACTORS.length+')</h3><div class="chart">'+pie(c,96)+legend(c)+'</div></div></div>';
+}
+function pageFactorDetail(){
+  var x=f(S.factor)||FACTORS[0];
+  var back = S.factorFrom==="riskAnalysis" ? ["Return to Risk Analysis","riskAnalysis"] : ["Return to Risk Factors","allFactors"];
+  head(esc(x.name),back,null);
+  var rows = DETAILS[x.name] || [["HazardHub score (A-F)",x.grade],["Risk description",x.desc],["Data source","HazardHub"],["Last refreshed","09/08/2022"]];
+  return '<div class="box" style="max-width:540px;padding:6px 10px;display:flex;gap:10px;align-items:center;font-weight:600">'+statIcon(x.status)+'<span>'+x.grade+'</span><span>'+esc(x.desc)+'</span></div>'+
+   '<div class="box scroll" style="max-width:540px"><table class="grid" style="min-width:420px"><thead><tr><th>Name</th><th>Description</th></tr></thead><tbody>'+
+   rows.map(function(r){return '<tr><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td></tr>'}).join("")+'</tbody></table></div>';
+}
+function pagePlaceholder(title){
+  head(title,null,stdActs(S.page!=="policyInfo"));
+  return '<div class="placeholder"><b>'+title+'</b>This screen is not part of the HazardHub demo. Use Policy Info, Buildings and Locations, or Risk Analysis to explore.</div>';
+}
+
+var TITLES={blankets:"Blankets",manuscript:"Manuscript Endorsements",modifiers:"Modifiers",policyReview:"Policy Review"};
+function render(){
+  var app=document.getElementById("app");
+  app.classList.toggle("collapsed",S.navCollapsed);
+  renderSide();
+  var c;
+  if(S.page==="policyInfo")c=pagePolicyInfo();
+  else if(S.page==="buildings")c=pageBuildings();
+  else if(S.page==="riskAnalysis")c=pageRisk();
+  else if(S.page==="allFactors")c=pageAllFactors();
+  else if(S.page==="factorDetail")c=pageFactorDetail();
+  else if(S.page.indexOf("tool:")===0)c=pagePlaceholder(S.page.slice(5));
+  else c=pagePlaceholder(TITLES[S.page]||S.page);
+  document.getElementById("content").innerHTML=c;
+}
+function go(page){S.page=page;render();document.getElementById("content").scrollTop=0;if(window.innerWidth<=760)document.getElementById("app").classList.remove("mobile-open");}
+
+/* ---------- modal & dropdown ---------- */
+function closeDrop(){var d=document.querySelector(".dropdown");if(d)d.remove();}
+function dropdown(anchor,items,handler){
+  closeDrop();
+  var r=anchor.getBoundingClientRect(),d=document.createElement("div");
+  d.className="dropdown";d.setAttribute("role","menu");
+  d.innerHTML=items.map(function(t,i){return '<button role="menuitem" data-i="'+i+'">'+esc(t)+'</button>'}).join("");
+  document.body.appendChild(d);
+  var left=Math.min(r.left,window.innerWidth-d.offsetWidth-8);
+  d.style.left=Math.max(8,left)+"px";d.style.top=(r.bottom+2)+"px";
+  d.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;handler(items[+b.dataset.i]);closeDrop();});
+  var first=d.querySelector("button");if(first)first.focus();
+}
+function modal(title,body,okLabel,onOk){
+  var bg=document.createElement("div");bg.className="modal-bg";
+  bg.innerHTML='<div class="modal" role="dialog" aria-modal="true" aria-label="'+esc(title)+'"><header><span>'+esc(title)+'</span><button aria-label="Close" data-x>&times;</button></header><div class="mb">'+body+'</div><footer><button class="btn" data-x style="background:#8795a1">Cancel</button><button class="btn" data-ok>'+esc(okLabel)+'</button></footer></div>';
+  document.body.appendChild(bg);
+  function close(){bg.remove();}
+  bg.addEventListener("click",function(e){
+    if(e.target===bg||e.target.closest("[data-x]"))close();
+    if(e.target.closest("[data-ok]")){if(onOk(bg)!==false)close();}
+  });
+  var i=bg.querySelector("input,select,textarea,button[data-ok]");if(i)i.focus();
+}
+
+/* ---------- actions ---------- */
+function now(){var d=new Date();return (d.getMonth()+1+"").padStart(2,"0")+"/"+(d.getDate()+"").padStart(2,"0")+"/"+d.getFullYear()+" "+d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});}
+function doRequest(key){
+  S.requested[key]="busy";render();
+  setTimeout(function(){
+    S.requested[key]="done";
+    var sol = key==="cas" ? "HazardHub Casualty" : "HazardHub Property (Commercial)";
+    var loc = key.indexOf("loc")===0 ? LOCS[+key.slice(3)].name : "All locations";
+    S.history.unshift({date:now(),sol:sol,user:"Steve Smith",loc:loc,result: key==="cas"?"No casualty data for this product":"Success"});
+    render();
+    toast(key==="cas" ? "HazardHub Casualty returned no results for this line" : sol+" data refreshed"+(key.indexOf("loc")===0?" for "+loc:""));
+  },1300);
+}
+var ACTIONS={
+  actions:function(el){dropdown(el,["New Note","New Document","New Activity","Withdraw Transaction"],function(t){toast(t+" selected");});},
+  toggleContract:function(){S.contractOpen=!S.contractOpen;render();},
+  toggleTools:function(){S.toolsOpen=!S.toolsOpen;render();},
+  collapseNav:function(){S.navCollapsed=true;document.getElementById("app").classList.remove("mobile-open");render();},
+  next:function(){var i=WIZ.indexOf(navSel());go(WIZ[Math.min(i+1,WIZ.length-1)]);},
+  back:function(){var i=WIZ.indexOf(navSel());go(WIZ[Math.max(i-1,0)]);},
+  rate:function(el){el.disabled=true;el.innerHTML='<span class="spin"></span>Rate';setTimeout(function(){render();toast("Rating complete. Estimated annual premium $25,000.00");},1100);},
+  save:function(){toast("Draft saved");},
+  closeOpts:function(el){dropdown(el,["Withdraw Transaction","Decline","Not Taken"],function(t){toast(t+" is disabled in this playground");});},
+  gmaps:function(){toast("Google Maps opens 713 E Paces Ferry Rd NE, Atlanta");},
+  gmapsLoc:function(){toast("Google Maps opens "+LOCS[S.selLoc].addr);},
+  fema:function(){toast("FEMA Flood Map opens for "+LOCS[S.selLoc].name+" (Zone "+LOCS[S.selLoc].fema+")");},
+  changeTo:function(el){dropdown(el,["New Company","New Person","From Address Book","Existing Contact"],function(t){toast(t+" selected");});},
+  addLoc:function(){toast("New location form opened");},
+  addUW:function(){
+    modal("Add UW Issue",
+      '<div class="frow"><label for="uwT">Issue Type</label><div class="inp">'+sel(["High concern HazardHub factor","Convective storm exposure","Prior loss history","Manual referral"],"High concern HazardHub factor",true).replace("<select","<select id=\"uwT\"")+'</div></div>'+
+      '<div class="frow"><label for="uwD">Short Description</label><div class="inp"><input id="uwD" value="Convective storm risk grade F at primary location"></div></div>'+
+      '<div class="frow"><label for="uwB">Blocking Point</label><div class="inp">'+sel(["Bind","Quote","Issuance"],"Bind",true).replace("<select","<select id=\"uwB\"")+'</div></div>',
+      "Add Issue",function(m){
+        S.uwIssues.push({type:m.querySelector("#uwT").value,desc:m.querySelector("#uwD").value||"(no description)",block:m.querySelector("#uwB").value});
+        S.raTab="UW Issues";render();toast("UW issue added");
+      });
+  },
+  addCont:function(){toast("Add Contingency form opened");},
+  reqApproval:function(){toast(S.uwIssues.length?"Approval requested for "+S.uwIssues.length+" issue(s)":"There are no UW issues to approve");},
+  lock:function(){toast("Submission locked for review");}
+};
+
+document.addEventListener("click",function(e){
+  var t=e.target;
+  if(!t.closest(".dropdown")&&!t.closest("[data-menu]")&&!t.closest("[data-act='closeOpts']")&&!t.closest("[data-act='actions']")&&!t.closest("[data-act='changeTo']"))closeDrop();
+  var el;
+  if((el=t.closest("[data-menu]"))){
+    var m=MENUS[+el.dataset.menu];
+    if(!m[1]){toast(m[0]+" opened");return;}
+    dropdown(el,m[1],function(x){toast(m[0]+" > "+x);});return;
+  }
+  if((el=t.closest("[data-nav]"))){go(el.dataset.nav);return;}
+  if((el=t.closest("[data-act]"))&&ACTIONS[el.dataset.act]){ACTIONS[el.dataset.act](el);return;}
+  if((el=t.closest("[data-ratab]"))){S.raTab=el.dataset.ratab;render();return;}
+  if((el=t.closest("[data-loctab]"))){S.locTab=el.dataset.loctab;if(S.locTab==="primary")S.selLoc=0;render();return;}
+  if((el=t.closest("[data-dettab]"))){S.detTab=el.dataset.dettab;render();return;}
+  if((el=t.closest("[data-req]"))){e.stopPropagation();doRequest(el.dataset.req);return;}
+  if((el=t.closest("[data-factor]"))){S.factor=el.dataset.factor;S.factorFrom=S.page;go("factorDetail");return;}
+  if((el=t.closest("[data-sort]"))){sortBy(el.dataset.sort);return;}
+  if((el=t.closest("tr[data-loc]"))){S.selLoc=+el.dataset.loc;render();return;}
+  if((el=t.closest("[data-toast]"))){toast(el.dataset.toast);return;}
+});
+function sortBy(v){
+  var p=v.split(":"),key=p[0]==="all"?"sortAll":"sortRel",cur=S[key];
+  S[key] = cur&&cur.col===p[1] ? (cur.dir>0?{col:p[1],dir:-1}:null) : {col:p[1],dir:1};
+  render();
+}
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape"){closeDrop();var m=document.querySelector(".modal-bg");if(m)m.remove();}
+  if((e.key==="Enter"||e.key===" ")){
+    var el=e.target;
+    if(el.matches("tr[data-loc]")){e.preventDefault();S.selLoc=+el.dataset.loc;render();}
+    else if(el.matches("th[data-sort]")){e.preventDefault();sortBy(el.dataset.sort);}
+  }
+});
+document.getElementById("expandNav").addEventListener("click",function(){
+  if(window.innerWidth<=760)document.getElementById("app").classList.add("mobile-open");
+  S.navCollapsed=false;render();
+});
+document.getElementById("goto").addEventListener("keydown",function(e){
+  if(e.key!=="Enter")return;
+  var q=this.value.toLowerCase();
+  var hit=FACTORS.filter(function(x){return x.name.toLowerCase().indexOf(q)>-1&&x.link})[0];
+  if(q.indexOf("risk")>-1&&!hit){go("riskAnalysis");}
+  else if(q.indexOf("policy")>-1){go("policyInfo");}
+  else if(hit){S.factor=hit.name;S.factorFrom="allFactors";go("factorDetail");}
+  else toast("No match for \""+this.value+"\"");
+});
+document.getElementById("hintToggle").addEventListener("change",function(){document.body.classList.toggle("hints",this.checked);});
+document.getElementById("resetBtn").addEventListener("click",function(){S=fresh();document.getElementById("app").classList.remove("mobile-open");render();toast("Playground reset");});
+
+renderMenus();render();
+})();
+</script>
+</body>
+</html>
